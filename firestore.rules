@@ -41,7 +41,7 @@ service cloud.firestore {
              data.role in ['admin', 'direction', 'scolarite', 'caisse', 'enseignant', 'surveillant', 'president'] &&
              data.status in ['pending', 'approved', 'rejected'] &&
              (!('mission' in data) || (data.mission is string && data.mission.size() <= 250)) &&
-             (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 500));
+             (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 1000));
     }
 
     match /users/{userId} {

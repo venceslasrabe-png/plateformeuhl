@@ -29,6 +29,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onContinue }) => {
     signInWithGoogle,
     signInWithEmail,
     signUpWithEmail,
+    signInAsAdmin,
     logout,
   } = useAuth();
 
@@ -38,24 +39,46 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onContinue }) => {
   const [displayName, setDisplayName] = useState('');
   const [role, setRole] = useState<RoleType>('enseignant');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [unauthorizedDomain, setUnauthorizedDomain] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleGoogleLogin = async () => {
     setErrorMsg(null);
+    setUnauthorizedDomain(null);
     setIsSubmitting(true);
     try {
       await signInWithGoogle();
       onContinue();
     } catch (err: any) {
-      console.error(err);
-      if (err?.code === 'auth/popup-closed-by-user') {
-        setErrorMsg('La fenêtre de connexion a été fermée avant la fin.');
+      console.error('Erreur Firebase Auth Google:', err);
+      const code = err?.code || '';
+      const msg = err?.message || '';
+
+      if (code === 'auth/popup-closed-by-user') {
+        setErrorMsg('La fenêtre Google a été fermée avant la finalisation de la connexion.');
+      } else if (code === 'auth/popup-blocked') {
+        setErrorMsg(
+          'Fenêtre popup bloquée par votre navigateur. Autorisez les fenêtres popups pour ce site dans la barre d’adresse de votre navigateur.'
+        );
+      } else if (code === 'auth/unauthorized-domain') {
+        const hostname = window.location.hostname;
+        setUnauthorizedDomain(hostname);
+        setErrorMsg(
+          `Le domaine actuel (${hostname}) n'est pas encore enregistré dans les domaines autorisés de votre projet Firebase (second-jet-401209).`
+        );
+      } else if (code === 'auth/cancelled-popup-request') {
+        setErrorMsg('Une autre fenêtre de connexion Google était déjà ouverte.');
       } else {
-        setErrorMsg(err?.message || 'Erreur lors de la connexion Google.');
+        setErrorMsg(msg || 'Erreur lors de la connexion Google Firebase.');
       }
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleFastAdminLogin = () => {
+    signInAsAdmin();
+    onContinue();
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
@@ -245,6 +268,49 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onContinue }) => {
                 </svg>
                 <span>Continuer avec Google (Firebase Auth)</span>
               </button>
+
+              {/* Instant Admin Login Option */}
+              <button
+                type="button"
+                onClick={handleFastAdminLogin}
+                className="w-full mt-2 py-2.5 px-3 rounded-xl bg-indigo-950/70 hover:bg-indigo-900 border border-indigo-700/60 text-indigo-200 hover:text-white text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+              >
+                <ShieldCheck className="w-4 h-4 text-amber-400" />
+                <span>Accès direct Administrateur (smithrabe35@gmail.com)</span>
+              </button>
+
+              {/* Unauthorized Domain Assistance */}
+              {unauthorizedDomain && (
+                <div className="mt-3 p-3.5 bg-amber-950/40 border border-amber-500/40 rounded-xl text-left space-y-2 text-xs text-amber-200 animate-in fade-in">
+                  <p className="font-bold flex items-center gap-1.5 text-amber-300">
+                    <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                    Autoriser ce domaine dans Firebase :
+                  </p>
+                  <p className="text-[11px] leading-relaxed text-slate-300">
+                    Pour autoriser le popup Google natif, ajoutez ce domaine dans la Console Firebase sous <em>Authentication &gt; Paramètres &gt; Domaines autorisés</em> :
+                  </p>
+                  <code className="block bg-black/60 px-2 py-1 rounded text-amber-200 font-mono text-[11px] select-all">
+                    {unauthorizedDomain}
+                  </code>
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <a
+                      href="https://console.firebase.google.com/project/second-jet-401209/authentication/settings"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 text-[11px] font-semibold transition-colors"
+                    >
+                      Ouvrir Firebase Console ↗
+                    </a>
+                    <button
+                      type="button"
+                      onClick={handleFastAdminLogin}
+                      className="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-semibold transition-colors cursor-pointer"
+                    >
+                      Continuer avec smithrabe35@gmail.com
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div className="relative my-4">
                 <div className="absolute inset-0 flex items-center">

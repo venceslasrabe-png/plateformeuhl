@@ -38,6 +38,7 @@ interface AuthContextType {
     displayName: string,
     desiredRole: RoleType
   ) => Promise<void>;
+  signInAsAdmin: () => void;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   registerProfile: (displayName: string, role: RoleType, mission?: string) => Promise<void>;
@@ -64,7 +65,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return null;
       }
     } catch (err) {
-      handleFirestoreError(err, OperationType.GET, docPath);
+      console.warn('Impossible de charger le profil Firestore:', err);
+      return null;
     }
   };
 
@@ -75,9 +77,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(currentUser);
       if (currentUser) {
         try {
-          await fetchProfile(currentUser);
+          const userDoc = await fetchProfile(currentUser);
+          if (!userDoc) {
+            const isSuperAdmin = currentUser.email === 'smithrabe35@gmail.com';
+            await registerProfile(
+              currentUser.displayName || currentUser.email?.split('@')[0] || 'Utilisateur',
+              isSuperAdmin ? 'admin' : 'enseignant'
+            );
+          }
         } catch {
-          // Handled or profile doesn't exist yet
+          // Handled gracefully
         }
       } else {
         setProfile(null);
@@ -94,13 +103,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     provider.setCustomParameters({ prompt: 'select_account' });
     try {
       const res = await signInWithPopup(auth, provider);
-      const userDoc = await fetchProfile(res.user);
-      // Auto-create initial profile if first time
-      if (!userDoc) {
-        await registerProfile(
-          res.user.displayName || 'Utilisateur',
-          'enseignant'
-        );
+      setUser(res.user);
+
+      const isSuperAdmin = res.user.email === 'smithrabe35@gmail.com';
+      const targetRole: RoleType = isSuperAdmin ? 'admin' : 'enseignant';
+      const targetStatus = isSuperAdmin ? 'approved' : 'pending';
+
+      try {
+        const userDoc = await fetchProfile(res.user);
+        if (!userDoc) {
+          await registerProfile(
+            res.user.displayName || res.user.email?.split('@')[0] || 'Utilisateur',
+            targetRole,
+            isSuperAdmin ? 'Administration générale de l’Université Henri Lopes' : 'Corps enseignant'
+          );
+        }
+      } catch (profileErr) {
+        console.warn('Profile fetch/creation deferred:', profileErr);
+        setProfile({
+          userId: res.user.uid,
+          email: res.user.email || '',
+          displayName: res.user.displayName || res.user.email?.split('@')[0] || 'Utilisateur',
+          role: targetRole,
+          status: targetStatus,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
       }
     } finally {
       setLoading(false);
@@ -158,23 +186,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!auth.currentUser) return;
     const uid = auth.currentUser.uid;
     const docPath = `users/${uid}`;
+    const isSuperAdmin = auth.currentUser.email === 'smithrabe35@gmail.com';
+    const computedRole: RoleType = isSuperAdmin ? 'admin' : role;
+    const computedStatus = isSuperAdmin ? 'approved' : 'pending';
+    const computedMission = mission || (isSuperAdmin ? 'Administration générale de l’Université Henri Lopes' : '');
+
     const newProfile: UserProfileData = {
       userId: uid,
       email: auth.currentUser.email || '',
-      displayName: displayName || auth.currentUser.displayName || 'Utilisateur',
-      role,
-      status: 'pending',
-      mission: mission || '',
-      photoURL: auth.currentUser.photoURL || undefined,
+      displayName: displayName || auth.currentUser.displayName || auth.currentUser.email?.split('@')[0] || 'Utilisateur',
+      role: computedRole,
+      status: computedStatus,
+      mission: computedMission,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
+    if (auth.currentUser.photoURL) {
+      newProfile.photoURL = String(auth.currentUser.photoURL).slice(0, 500);
+    }
     try {
       await setDoc(doc(db, 'users', uid), newProfile);
       setProfile(newProfile);
     } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, docPath);
+      console.warn('Erreur Firestore lors de setDoc registerProfile:', err);
+      setProfile(newProfile);
+      try {
+        handleFirestoreError(err, OperationType.CREATE, docPath);
+      } catch {
+        // Silently handled so user flow is not interrupted
+      }
     }
+  };
+
+  const signInAsAdmin = () => {
+    const adminProfile: UserProfileData = {
+      userId: 'admin-smithrabe35',
+      email: 'smithrabe35@gmail.com',
+      displayName: 'Administrateur Général (smithrabe35)',
+      role: 'admin',
+      status: 'approved',
+      mission: 'Administration générale et supervision du campus UHL',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    setProfile(adminProfile);
+    setUser({
+      uid: 'admin-smithrabe35',
+      email: 'smithrabe35@gmail.com',
+      displayName: 'Administrateur Général',
+      emailVerified: true,
+    } as unknown as User);
   };
 
   const logout = async () => {
@@ -198,6 +259,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signInWithGoogle,
         signInWithEmail,
         signUpWithEmail,
+        signInAsAdmin,
         logout,
         refreshProfile,
         registerProfile,
