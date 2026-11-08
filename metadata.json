@@ -1,0 +1,6 @@
+{
+  "name": "Université Henri Lopes – Gestion LMD",
+  "description": "Plateforme complète de gestion académique, administrative, financière et de surveillance pour l'Université Henri Lopes à Pointe-Noire (système LMD).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
