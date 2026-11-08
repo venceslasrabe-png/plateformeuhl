@@ -17,6 +17,7 @@ import {
   Sparkles,
   X,
   Target,
+  LogOut,
 } from 'lucide-react';
 import { RoleType } from '../types';
 import {
@@ -37,6 +38,7 @@ interface Props {
   isOpenMobile: boolean;
   onCloseMobile: () => void;
   onOpenAuth: () => void;
+  onLogout?: () => void;
   userEmail?: string | null;
 }
 
@@ -52,6 +54,7 @@ export const Sidebar: React.FC<Props> = ({
   isOpenMobile,
   onCloseMobile,
   onOpenAuth,
+  onLogout,
   userEmail,
 }) => {
   const allowedViews = MENU_PERMISSIONS[currentRole] || [];
@@ -177,21 +180,37 @@ export const Sidebar: React.FC<Props> = ({
 
         {/* Firebase Auth & Demo Seed Reset Action */}
         <div className="p-3 border-t border-[#1e4e40] bg-[#0c3126] space-y-2">
-          <button
-            onClick={() => {
-              onOpenAuth();
-              onCloseMobile();
-            }}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-indigo-950/70 hover:bg-indigo-900/80 text-indigo-200 hover:text-white text-xs font-semibold border border-indigo-700/60 transition-colors cursor-pointer"
-          >
-            <div className="flex items-center gap-2 truncate">
-              <span className={`w-2 h-2 rounded-full ${userEmail ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-              <span className="truncate">{userEmail || 'Connexion Firebase'}</span>
-            </div>
-            <span className="text-[10px] bg-indigo-600 text-white px-1.5 py-0.5 rounded font-bold">
-              {userEmail ? 'Compte' : 'Login'}
-            </span>
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => {
+                onOpenAuth();
+                onCloseMobile();
+              }}
+              className="flex-1 flex items-center justify-between px-3 py-2 rounded-lg bg-indigo-950/70 hover:bg-indigo-900/80 text-indigo-200 hover:text-white text-xs font-semibold border border-indigo-700/60 transition-colors cursor-pointer min-w-0"
+            >
+              <div className="flex items-center gap-2 truncate">
+                <span className={`w-2 h-2 rounded-full shrink-0 ${userEmail ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                <span className="truncate">{userEmail || 'Connexion Firebase'}</span>
+              </div>
+              <span className="text-[10px] bg-indigo-600 text-white px-1.5 py-0.5 rounded font-bold shrink-0 ml-1">
+                {userEmail ? 'Compte' : 'Login'}
+              </span>
+            </button>
+
+            {userEmail && onLogout && (
+              <button
+                onClick={() => {
+                  onLogout();
+                  onCloseMobile();
+                }}
+                title="Se déconnecter"
+                className="p-2 rounded-lg bg-rose-950/70 hover:bg-rose-900 text-rose-200 hover:text-white border border-rose-800/60 transition-colors shrink-0 cursor-pointer"
+                aria-label="Se déconnecter"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
 
           <button
             onClick={onResetSeedData}

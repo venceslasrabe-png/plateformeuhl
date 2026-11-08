@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, FileSpreadsheet } from 'lucide-react';
+import { Menu, FileSpreadsheet, LogOut } from 'lucide-react';
 import { RoleType } from '../types';
 import { ROLE_LABELS, UNIVERSITY_LOGO } from '../constants/assets';
 
@@ -11,6 +11,7 @@ interface Props {
   onOpenMobileMenu: () => void;
   onExportExcel: () => void;
   onOpenAuth: () => void;
+  onLogout?: () => void;
   userEmail?: string | null;
   userDisplayName?: string | null;
 }
@@ -23,6 +24,7 @@ export const Header: React.FC<Props> = ({
   onOpenMobileMenu,
   onExportExcel,
   onOpenAuth,
+  onLogout,
   userEmail,
   userDisplayName,
 }) => {
@@ -92,6 +94,17 @@ export const Header: React.FC<Props> = ({
             </span>
           </div>
         </button>
+
+        {userEmail && onLogout && (
+          <button
+            onClick={onLogout}
+            title="Se déconnecter de la session Firebase"
+            className="p-1.5 rounded-lg border border-rose-200 dark:border-rose-900/60 bg-rose-50/80 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900 text-rose-700 dark:text-rose-300 transition-colors cursor-pointer"
+            aria-label="Se déconnecter"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
+        )}
 
         <div className="hidden lg:flex flex-col items-end pl-2 border-l border-slate-200 dark:border-slate-800">
           <span className="text-xs font-bold text-slate-800 dark:text-slate-200">

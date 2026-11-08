@@ -25,8 +25,14 @@ import { UsersRolesView } from './components/UsersRolesView';
 import { SettingsView } from './components/SettingsView';
 import { AuthPage } from './components/AuthPage';
 import { AuthProvider, useAuth } from './firebase/authContext';
-import { CheckCircle, AlertTriangle, Info, X } from 'lucide-react';
-import { MENU_PERMISSIONS, ROLE_LABELS } from './constants/assets';
+import { CheckCircle, AlertTriangle, Info, X, Loader2 } from 'lucide-react';
+import {
+  MENU_PERMISSIONS,
+  ROLE_LABELS,
+  UNIVERSITY_NAME,
+  UNIVERSITY_CITY,
+  UNIVERSITY_LOGO,
+} from './constants/assets';
 
 interface ToastState {
   id: number;
@@ -98,7 +104,8 @@ const VIEW_METADATA: Record<string, { title: string; subtitle: string }> = {
 };
 
 function MainDashboard() {
-  const { user, profile } = useAuth();
+  const { user, profile, loading, logout } = useAuth();
+  const [hasEntered, setHasEntered] = useState<boolean>(false);
   const [data, setData] = useState<AppData>(loadAppData);
   const [currentRole, setCurrentRole] = useState<RoleType>(() => {
     const saved = localStorage.getItem('uhl_active_role');
@@ -139,6 +146,17 @@ function MainDashboard() {
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 4000);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setHasEntered(false);
+      setShowAuthModal(false);
+      handleNotify('Session terminée avec succès.', 'info');
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleSaveData = (newData: AppData) => {
@@ -220,6 +238,43 @@ function MainDashboard() {
       ? 'M. Gaston Ngoma (Surveillance Guérite)'
       : 'Cabinet du Président (Audit)';
 
+  // 1. Splash screen while Firebase auth state is being verified
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-24 h-24 rounded-2xl bg-white p-3 shadow-2xl mb-5 flex items-center justify-center border-2 border-amber-400/60 animate-pulse">
+          <img
+            src={UNIVERSITY_LOGO}
+            alt="Emblème Université Henri Lopes"
+            className="w-full h-full object-contain"
+          />
+        </div>
+        <h1 className="text-2xl font-bold font-['Bricolage_Grotesque'] text-white">
+          {UNIVERSITY_NAME}
+        </h1>
+        <p className="text-xs text-emerald-400 font-medium mt-1">
+          {UNIVERSITY_CITY} · Portail académique LMD
+        </p>
+        <div className="flex items-center gap-2 mt-6 text-xs text-slate-400">
+          <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
+          <span>Vérification de la session sécurisée Firebase...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Initial Page Gate: Connexion / Inscription is the very first page shown on launch
+  if (!hasEntered) {
+    return (
+      <AuthPage
+        onContinue={() => {
+          setHasEntered(true);
+          handleNotify('Bienvenue sur la plateforme académique Henri Lopes !', 'success');
+        }}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col antialiased">
       <div className="flex-1 flex overflow-hidden">
@@ -236,6 +291,7 @@ function MainDashboard() {
           isOpenMobile={isOpenMobile}
           onCloseMobile={() => setIsOpenMobile(false)}
           onOpenAuth={() => setShowAuthModal(true)}
+          onLogout={handleLogout}
           userEmail={user?.email || null}
         />
 
@@ -250,6 +306,7 @@ function MainDashboard() {
             onOpenMobileMenu={() => setIsOpenMobile(true)}
             onExportExcel={handleExportExcel}
             onOpenAuth={() => setShowAuthModal(true)}
+            onLogout={handleLogout}
             userEmail={user?.email || null}
             userDisplayName={profile?.displayName || user?.displayName || null}
           />
