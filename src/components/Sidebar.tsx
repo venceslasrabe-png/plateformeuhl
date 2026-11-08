@@ -36,6 +36,8 @@ interface Props {
   onResetSeedData: () => void;
   isOpenMobile: boolean;
   onCloseMobile: () => void;
+  onOpenAuth: () => void;
+  userEmail?: string | null;
 }
 
 export const Sidebar: React.FC<Props> = ({
@@ -49,6 +51,8 @@ export const Sidebar: React.FC<Props> = ({
   onResetSeedData,
   isOpenMobile,
   onCloseMobile,
+  onOpenAuth,
+  userEmail,
 }) => {
   const allowedViews = MENU_PERMISSIONS[currentRole] || [];
 
@@ -171,11 +175,27 @@ export const Sidebar: React.FC<Props> = ({
             })}
         </nav>
 
-        {/* Demo Seed Reset Action */}
-        <div className="p-3 border-t border-[#1e4e40] bg-[#0c3126]">
+        {/* Firebase Auth & Demo Seed Reset Action */}
+        <div className="p-3 border-t border-[#1e4e40] bg-[#0c3126] space-y-2">
+          <button
+            onClick={() => {
+              onOpenAuth();
+              onCloseMobile();
+            }}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-indigo-950/70 hover:bg-indigo-900/80 text-indigo-200 hover:text-white text-xs font-semibold border border-indigo-700/60 transition-colors cursor-pointer"
+          >
+            <div className="flex items-center gap-2 truncate">
+              <span className={`w-2 h-2 rounded-full ${userEmail ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+              <span className="truncate">{userEmail || 'Connexion Firebase'}</span>
+            </div>
+            <span className="text-[10px] bg-indigo-600 text-white px-1.5 py-0.5 rounded font-bold">
+              {userEmail ? 'Compte' : 'Login'}
+            </span>
+          </button>
+
           <button
             onClick={onResetSeedData}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-emerald-900/60 hover:bg-emerald-900 text-emerald-200 hover:text-white text-xs font-semibold border border-emerald-700/50 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-900/40 hover:bg-emerald-900 text-emerald-200 hover:text-white text-[11px] font-semibold border border-emerald-700/40 transition-colors cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
             Réinitialiser démo

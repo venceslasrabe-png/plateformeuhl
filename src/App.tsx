@@ -23,6 +23,8 @@ import { SurveillanceView } from './components/SurveillanceView';
 import { PresidentView } from './components/PresidentView';
 import { UsersRolesView } from './components/UsersRolesView';
 import { SettingsView } from './components/SettingsView';
+import { AuthPage } from './components/AuthPage';
+import { AuthProvider, useAuth } from './firebase/authContext';
 import { CheckCircle, AlertTriangle, Info, X } from 'lucide-react';
 import { MENU_PERMISSIONS, ROLE_LABELS } from './constants/assets';
 
@@ -95,7 +97,8 @@ const VIEW_METADATA: Record<string, { title: string; subtitle: string }> = {
   },
 };
 
-export default function App() {
+function MainDashboard() {
+  const { user, profile } = useAuth();
   const [data, setData] = useState<AppData>(loadAppData);
   const [currentRole, setCurrentRole] = useState<RoleType>(() => {
     const saved = localStorage.getItem('uhl_active_role');
@@ -103,8 +106,16 @@ export default function App() {
   });
   const [currentView, setCurrentView] = useState<string>('dash');
   const [isOpenMobile, setIsOpenMobile] = useState<boolean>(false);
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [toasts, setToasts] = useState<ToastState[]>([]);
   const [, startTransition] = useTransition();
+
+  // Synchronize role if logged in user profile has a defined role
+  useEffect(() => {
+    if (profile?.role) {
+      setCurrentRole(profile.role);
+    }
+  }, [profile?.role]);
 
   // Save current role
   useEffect(() => {
@@ -224,6 +235,8 @@ export default function App() {
           onResetSeedData={handleResetSeedData}
           isOpenMobile={isOpenMobile}
           onCloseMobile={() => setIsOpenMobile(false)}
+          onOpenAuth={() => setShowAuthModal(true)}
+          userEmail={user?.email || null}
         />
 
         {/* Main Content Area */}
@@ -236,6 +249,9 @@ export default function App() {
             role={currentRole}
             onOpenMobileMenu={() => setIsOpenMobile(true)}
             onExportExcel={handleExportExcel}
+            onOpenAuth={() => setShowAuthModal(true)}
+            userEmail={user?.email || null}
+            userDisplayName={profile?.displayName || user?.displayName || null}
           />
 
           {/* Body Content by View */}
@@ -358,6 +374,24 @@ export default function App() {
         </div>
       </div>
 
+      {/* Authentication Modal / Page */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-4xl max-h-[92vh] overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800">
+            {/* Close button in top-right */}
+            <button
+              onClick={() => setShowAuthModal(false)}
+              className="absolute top-4 right-4 z-20 p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 bg-white/80 dark:bg-slate-800/80 backdrop-blur rounded-full border border-slate-200 dark:border-slate-700 shadow-xs hover:bg-slate-100 transition-colors"
+              aria-label="Fermer la fenêtre d'authentification"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <AuthPage onContinue={() => setShowAuthModal(false)} />
+          </div>
+        </div>
+      )}
+
       {/* Toast Notification Container */}
       {toasts.length > 0 && (
         <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
@@ -398,5 +432,13 @@ export default function App() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <MainDashboard />
+    </AuthProvider>
   );
 }

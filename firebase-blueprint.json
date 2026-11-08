@@ -1,0 +1,61 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Profil utilisateur de l'Université Henri Lopes",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID",
+          "maxLength": 128
+        },
+        "email": {
+          "type": "string",
+          "description": "Adresse email de l'utilisateur",
+          "maxLength": 150
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Nom complet de l'agent ou de l'étudiant",
+          "maxLength": 100
+        },
+        "role": {
+          "type": "string",
+          "description": "Rôle fonctionnel au sein de l'université",
+          "enum": ["admin", "direction", "scolarite", "caisse", "enseignant", "surveillant", "president"]
+        },
+        "status": {
+          "type": "string",
+          "description": "État de validation du compte par l'administration",
+          "enum": ["pending", "approved", "rejected"]
+        },
+        "mission": {
+          "type": "string",
+          "description": "Mission opérationnelle attribuée",
+          "maxLength": 250
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "URL de photo de profil",
+          "maxLength": 500
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Date de création du compte"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Date de dernière mise à jour"
+        }
+      },
+      "required": ["userId", "email", "displayName", "role", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Profils des membres de l'Université Henri Lopes avec rôles et statuts d'approbation"
+    }
+  }
+}

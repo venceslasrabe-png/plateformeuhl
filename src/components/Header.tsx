@@ -10,6 +10,9 @@ interface Props {
   role: RoleType;
   onOpenMobileMenu: () => void;
   onExportExcel: () => void;
+  onOpenAuth: () => void;
+  userEmail?: string | null;
+  userDisplayName?: string | null;
 }
 
 export const Header: React.FC<Props> = ({
@@ -19,6 +22,9 @@ export const Header: React.FC<Props> = ({
   role,
   onOpenMobileMenu,
   onExportExcel,
+  onOpenAuth,
+  userEmail,
+  userDisplayName,
 }) => {
   return (
     <header className="sticky top-0 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-b border-slate-200 dark:border-slate-800 px-4 lg:px-8 py-2.5 flex items-center justify-between gap-4">
@@ -58,7 +64,7 @@ export const Header: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* Right: Quick actions and Role indicator */}
+      {/* Right: Quick actions and Firebase Auth indicator */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         <button
           onClick={onExportExcel}
@@ -69,11 +75,29 @@ export const Header: React.FC<Props> = ({
           <span className="hidden md:inline">Excel</span>
         </button>
 
-        <div className="hidden sm:flex flex-col items-end pl-2 border-l border-slate-200 dark:border-slate-800">
+        {/* Firebase Account Button */}
+        <button
+          onClick={onOpenAuth}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/60 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-900 dark:text-indigo-200 text-xs font-semibold transition-all shadow-xs cursor-pointer"
+        >
+          <div className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-bold">
+            {userEmail ? (userDisplayName || userEmail)[0].toUpperCase() : '👤'}
+          </div>
+          <div className="hidden sm:flex flex-col items-start text-left leading-tight">
+            <span className="text-[11px] font-bold truncate max-w-[120px]">
+              {userEmail ? (userDisplayName || userEmail.split('@')[0]) : 'Compte Firebase'}
+            </span>
+            <span className="text-[9px] text-indigo-600 dark:text-indigo-400">
+              {userEmail ? 'Connecté' : 'Connexion / Inscription'}
+            </span>
+          </div>
+        </button>
+
+        <div className="hidden lg:flex flex-col items-end pl-2 border-l border-slate-200 dark:border-slate-800">
           <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
             {ROLE_LABELS[role]}
           </span>
-          <span className="text-[10px] text-slate-400">Université Henri Lopes</span>
+          <span className="text-[10px] text-slate-400">Pointe-Noire</span>
         </div>
       </div>
     </header>
