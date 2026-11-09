@@ -117,6 +117,50 @@ function MainDashboard() {
   const [toasts, setToasts] = useState<ToastState[]>([]);
   const [, startTransition] = useTransition();
 
+  // Desktop layout readjustment state (persisted to localStorage)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    return localStorage.getItem('uhl_sidebar_collapsed') === 'true';
+  });
+  const [isFullWidth, setIsFullWidth] = useState<boolean>(() => {
+    return localStorage.getItem('uhl_full_width') === 'true';
+  });
+  const [dashboardDensity, setDashboardDensity] = useState<'compact' | 'normal' | 'spacious'>(() => {
+    const saved = localStorage.getItem('uhl_density');
+    return (saved as 'compact' | 'normal' | 'spacious') || 'normal';
+  });
+  const [hideHeroBanner, setHideHeroBanner] = useState<boolean>(() => {
+    return localStorage.getItem('uhl_hide_hero') === 'true';
+  });
+
+  const toggleSidebarCollapsed = () => {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('uhl_sidebar_collapsed', String(next));
+      return next;
+    });
+  };
+
+  const toggleFullWidth = () => {
+    setIsFullWidth((prev) => {
+      const next = !prev;
+      localStorage.setItem('uhl_full_width', String(next));
+      return next;
+    });
+  };
+
+  const toggleHeroBanner = () => {
+    setHideHeroBanner((prev) => {
+      const next = !prev;
+      localStorage.setItem('uhl_hide_hero', String(next));
+      return next;
+    });
+  };
+
+  const handleDensityChange = (d: 'compact' | 'normal' | 'spacious') => {
+    setDashboardDensity(d);
+    localStorage.setItem('uhl_density', d);
+  };
+
   // Synchronize role if logged in user profile has a defined role
   useEffect(() => {
     if (profile?.role) {
@@ -267,6 +311,7 @@ function MainDashboard() {
   if (!hasEntered) {
     return (
       <AuthPage
+        activeRole={currentRole}
         onContinue={() => {
           setHasEntered(true);
           handleNotify('Bienvenue sur la plateforme académique Henri Lopes !', 'success');
@@ -293,10 +338,16 @@ function MainDashboard() {
           onOpenAuth={() => setShowAuthModal(true)}
           onLogout={handleLogout}
           userEmail={user?.email || null}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={toggleSidebarCollapsed}
         />
 
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        {/* Main Content Area: uses lg:pl-64 or lg:pl-[68px] to offset the fixed desktop sidebar so it NEVER covers dashboard data */}
+        <div
+          className={`flex-1 flex flex-col min-w-0 overflow-y-auto transition-all duration-300 ${
+            isSidebarCollapsed ? 'lg:pl-[68px]' : 'lg:pl-64'
+          }`}
+        >
           {/* Top Sticky Header */}
           <Header
             title={currentMeta.title}
@@ -309,15 +360,39 @@ function MainDashboard() {
             onLogout={handleLogout}
             userEmail={user?.email || null}
             userDisplayName={profile?.displayName || user?.displayName || null}
+            isSidebarCollapsed={isSidebarCollapsed}
+            onToggleSidebar={toggleSidebarCollapsed}
+            isFullWidth={isFullWidth}
+            onToggleFullWidth={toggleFullWidth}
+            density={dashboardDensity}
+            onChangeDensity={handleDensityChange}
           />
 
-          {/* Body Content by View */}
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+          {/* Body Content by View: full width or standard container with responsive density */}
+          <main
+            className={`flex-1 transition-all duration-300 ${
+              isFullWidth
+                ? 'w-full max-w-none px-3 sm:px-6 lg:px-8 py-4 sm:py-6'
+                : 'max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8'
+            } ${
+              dashboardDensity === 'compact'
+                ? 'text-xs'
+                : dashboardDensity === 'spacious'
+                ? 'text-base'
+                : 'text-sm'
+            }`}
+          >
             {currentView === 'dash' && (
               <DashboardView
                 data={data}
                 onNavigate={handleSelectView}
                 onExportExcel={handleExportExcel}
+                isFullWidth={isFullWidth}
+                onToggleFullWidth={toggleFullWidth}
+                isSidebarCollapsed={isSidebarCollapsed}
+                onToggleSidebar={toggleSidebarCollapsed}
+                hideHero={hideHeroBanner}
+                onToggleHideHero={toggleHeroBanner}
               />
             )}
 
@@ -417,6 +492,8 @@ function MainDashboard() {
               <UsersRolesView
                 teachers={data.teachers}
                 currentRole={currentRole}
+                currentUserEmail={user?.email}
+                onNotify={handleNotify}
               />
             )}
 
@@ -444,7 +521,10 @@ function MainDashboard() {
               <X className="w-5 h-5" />
             </button>
 
-            <AuthPage onContinue={() => setShowAuthModal(false)} />
+            <AuthPage
+              activeRole={currentRole}
+              onContinue={() => setShowAuthModal(false)}
+            />
           </div>
         </div>
       )}

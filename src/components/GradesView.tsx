@@ -306,6 +306,66 @@ export const GradesView: React.FC<Props> = ({ data, onSaveData, onNotify }) => {
 
         {releveResult && selectedStudent ? (
           <div className="space-y-4">
+            {/* Official Academic Bulletin Header */}
+            {(() => {
+              const studentParcours = data.parcours.find((p) => p.id === selectedStudent.parcours);
+              return (
+                <div className="rounded-xl border border-emerald-900/20 dark:border-emerald-800/40 bg-gradient-to-r from-emerald-50/70 via-white to-amber-50/40 dark:from-slate-800/80 dark:via-slate-900/90 dark:to-slate-800/60 p-4 sm:p-5 shadow-xs">
+                  {/* Top Bar: Center Aligned Institutional Titles */}
+                  <div className="text-center pb-3 border-b border-slate-200 dark:border-slate-800">
+                    <span className="text-[11px] font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-widest block">
+                      Université Henri Lopes · Pointe-Noire
+                    </span>
+                    <h4 className="text-base sm:text-lg font-black text-slate-900 dark:text-white uppercase font-['Bricolage_Grotesque'] tracking-tight mt-0.5">
+                      Bulletin Officiel de Notes & Résultats LMD
+                    </h4>
+                    <p className="text-xs text-amber-700 dark:text-amber-400 font-semibold mt-0.5">
+                      Session Ordinaire · Semestre {selectedSem} · Année Académique {data.p.ann}
+                    </p>
+                  </div>
+
+                  {/* Student Identity Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 text-xs">
+                    <div>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold block">
+                        Matricule
+                      </span>
+                      <b className="font-mono text-emerald-800 dark:text-emerald-300 font-bold text-xs">
+                        {selectedStudent.mat}
+                      </b>
+                    </div>
+
+                    <div>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold block">
+                        Étudiant(e)
+                      </span>
+                      <b className="text-slate-900 dark:text-white truncate block font-bold">
+                        {selectedStudent.nom} {selectedStudent.prenom}
+                      </b>
+                    </div>
+
+                    <div>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold block">
+                        Filière & Option
+                      </span>
+                      <p className="text-slate-800 dark:text-slate-200 truncate font-medium">
+                        {selectedStudent.fil || studentParcours?.dom || 'Sciences'} · {studentParcours?.nom || 'Formation LMD'}
+                      </p>
+                    </div>
+
+                    <div>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold block">
+                        Cycle / Niveau
+                      </span>
+                      <b className="text-[#0f3b2e] dark:text-emerald-400 font-bold">
+                        {studentParcours?.cycle || 'Licence'} — {selectedStudent.niveau}
+                      </b>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Summary Cards */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">

@@ -556,7 +556,7 @@ export const createInitialSeedData = (): AppData => {
     ltut: 'Oncle',
     modp: st.modp,
     resp: st.tut,
-    dins: '2026-10-15',
+    dins: ['2026-08-26', '2026-09-08', '2026-09-22', '2026-10-06', '2026-10-24', '2026-11-04'][idx % 6],
     ech: st.ech,
     modr: st.modr,
     cout: st.cout,

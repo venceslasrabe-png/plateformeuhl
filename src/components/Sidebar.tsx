@@ -18,6 +18,10 @@ import {
   X,
   Target,
   LogOut,
+  ChevronLeft,
+  ChevronRight,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 import { RoleType } from '../types';
 import {
@@ -40,6 +44,8 @@ interface Props {
   onOpenAuth: () => void;
   onLogout?: () => void;
   userEmail?: string | null;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 export const Sidebar: React.FC<Props> = ({
@@ -56,6 +62,8 @@ export const Sidebar: React.FC<Props> = ({
   onOpenAuth,
   onLogout,
   userEmail,
+  isCollapsed = false,
+  onToggleCollapse,
 }) => {
   const allowedViews = MENU_PERMISSIONS[currentRole] || [];
 
@@ -88,32 +96,52 @@ export const Sidebar: React.FC<Props> = ({
       )}
 
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-40 w-64 bg-[#0f3b2e] text-white flex flex-col border-r border-[#1e4e40] transition-transform duration-300 lg:translate-x-0 ${
-          isOpenMobile ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed top-0 bottom-0 left-0 z-40 bg-[#0f3b2e] text-white flex flex-col border-r border-[#1e4e40] transition-all duration-300 ${
+          isOpenMobile ? 'w-64 translate-x-0' : '-translate-x-full lg:translate-x-0'
+        } ${isCollapsed ? 'lg:w-[68px]' : 'lg:w-64'}`}
       >
         {/* Brand Header */}
-        <div className="p-4 border-b border-[#1e4e40] flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-white p-1 shadow-md flex items-center justify-center shrink-0">
+        <div className="p-3 sm:p-4 border-b border-[#1e4e40] flex items-center justify-between min-h-[64px]">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-white p-1 shadow-md flex items-center justify-center shrink-0">
               <img
                 src={UNIVERSITY_LOGO}
                 alt="Logo Université Henri Lopes"
-                className="w-full h-auto object-contain"
+                className="w-full h-full object-contain"
               />
             </div>
-            <div>
-              <h1 className="font-['Bricolage_Grotesque'] font-bold text-sm tracking-tight text-white leading-tight">
-                Univ. Henri Lopes
-              </h1>
-              <p className="text-[11px] text-emerald-300/80 font-normal">
-                Pointe-Noire · Gestion LMD
-              </p>
-            </div>
+            {(!isCollapsed || isOpenMobile) && (
+              <div className="min-w-0 truncate">
+                <h1 className="font-['Bricolage_Grotesque'] font-bold text-sm tracking-tight text-white leading-tight truncate">
+                  Univ. Henri Lopes
+                </h1>
+                <p className="text-[10px] text-emerald-300/80 font-normal truncate">
+                  Pointe-Noire · LMD
+                </p>
+              </div>
+            )}
           </div>
+
+          {/* Desktop Collapse Toggle */}
+          {onToggleCollapse && (
+            <button
+              onClick={onToggleCollapse}
+              title={isCollapsed ? 'Déployer la barre latérale' : 'Réduire la barre latérale'}
+              className="hidden lg:flex items-center justify-center p-1.5 rounded-lg text-emerald-200 hover:text-white hover:bg-white/10 transition-colors cursor-pointer shrink-0"
+              aria-label={isCollapsed ? 'Déployer la barre latérale' : 'Réduire la barre latérale'}
+            >
+              {isCollapsed ? (
+                <PanelLeftOpen className="w-4 h-4 text-amber-300" />
+              ) : (
+                <PanelLeftClose className="w-4 h-4" />
+              )}
+            </button>
+          )}
+
+          {/* Mobile Close Button */}
           <button
             onClick={onCloseMobile}
-            className="lg:hidden text-emerald-200 hover:text-white p-1 rounded-md"
+            className="lg:hidden text-emerald-200 hover:text-white p-1.5 rounded-md hover:bg-white/10 cursor-pointer"
             aria-label="Fermer le menu"
           >
             <X className="w-5 h-5" />
@@ -121,30 +149,46 @@ export const Sidebar: React.FC<Props> = ({
         </div>
 
         {/* Role Selector Simulator */}
-        <div className="p-3 bg-[#0a2c22] border-b border-[#1e4e40]">
-          <label className="block text-[11px] text-emerald-200/90 font-medium mb-1">
-            Rôle actif / Vue métier :
-          </label>
-          <select
-            value={currentRole}
-            onChange={(e) => onChangeRole(e.target.value as RoleType)}
-            className="w-full bg-[#134436] text-white text-xs rounded-lg px-2.5 py-1.5 border border-[#246250] focus:outline-none focus:ring-1 focus:ring-amber-400 font-medium cursor-pointer"
-          >
-            {(Object.keys(ROLE_LABELS) as RoleType[]).map((r) => (
-              <option key={r} value={r}>
-                {ROLE_LABELS[r]}
-              </option>
-            ))}
-          </select>
+        <div className="p-2.5 bg-[#0a2c22] border-b border-[#1e4e40]">
+          {!isCollapsed || isOpenMobile ? (
+            <div>
+              <label className="block text-[10px] text-emerald-200/90 font-medium mb-1">
+                Rôle actif / Vue métier :
+              </label>
+              <select
+                value={currentRole}
+                onChange={(e) => onChangeRole(e.target.value as RoleType)}
+                className="w-full bg-[#134436] text-white text-xs rounded-lg px-2.5 py-1.5 border border-[#246250] focus:outline-none focus:ring-1 focus:ring-amber-400 font-medium cursor-pointer"
+              >
+                {(Object.keys(ROLE_LABELS) as RoleType[]).map((r) => (
+                  <option key={r} value={r}>
+                    {ROLE_LABELS[r]}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <div
+              title={`Vue active : ${ROLE_LABELS[currentRole]}`}
+              className="flex flex-col items-center justify-center py-1 cursor-pointer"
+              onClick={onToggleCollapse}
+            >
+              <span className="w-8 h-8 rounded-lg bg-[#134436] border border-[#246250] flex items-center justify-center text-[10px] font-bold text-amber-300 uppercase shadow-xs">
+                {currentRole.slice(0, 3)}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Navigation List */}
-        <nav className="flex-1 overflow-y-auto p-2.5 space-y-1">
+        <nav className="flex-1 overflow-y-auto p-2 space-y-1">
           {navItems
             .filter((item) => allowedViews.includes(item.id))
             .map((item) => {
               const Icon = item.icon;
               const isActive = currentView === item.id;
+              const isSlim = isCollapsed && !isOpenMobile;
+
               return (
                 <button
                   key={item.id}
@@ -152,26 +196,35 @@ export const Sidebar: React.FC<Props> = ({
                     onSelectView(item.id);
                     onCloseMobile();
                   }}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  title={isSlim ? item.label : undefined}
+                  className={`w-full flex items-center rounded-xl text-xs font-medium transition-all cursor-pointer relative ${
+                    isSlim ? 'justify-center p-2.5' : 'justify-between px-3 py-2'
+                  } ${
                     isActive
                       ? 'bg-[#e8b923] text-slate-950 font-bold shadow-sm'
                       : 'text-emerald-100 hover:bg-white/10 hover:text-white'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5 truncate">
+                  <div className={`flex items-center gap-2.5 ${isSlim ? 'justify-center' : 'min-w-0 truncate'}`}>
                     <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-slate-950' : 'text-emerald-300'}`} />
-                    <span className="truncate">{item.label}</span>
+                    {!isSlim && <span className="truncate">{item.label}</span>}
                   </div>
+
+                  {/* Badge */}
                   {item.badge !== undefined && item.badge > 0 && (
-                    <span
-                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ml-1.5 shrink-0 ${
-                        isActive
-                          ? 'bg-slate-900 text-white'
-                          : 'bg-red-500 text-white'
-                      }`}
-                    >
-                      {item.badge}
-                    </span>
+                    isSlim ? (
+                      <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-red-500 border border-[#0f3b2e]" />
+                    ) : (
+                      <span
+                        className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ml-1.5 shrink-0 ${
+                          isActive
+                            ? 'bg-slate-900 text-white'
+                            : 'bg-red-500 text-white'
+                        }`}
+                      >
+                        {item.badge}
+                      </span>
+                    )
                   )}
                 </button>
               );
@@ -179,46 +232,72 @@ export const Sidebar: React.FC<Props> = ({
         </nav>
 
         {/* Firebase Auth & Demo Seed Reset Action */}
-        <div className="p-3 border-t border-[#1e4e40] bg-[#0c3126] space-y-2">
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => {
-                onOpenAuth();
-                onCloseMobile();
-              }}
-              className="flex-1 flex items-center justify-between px-3 py-2 rounded-lg bg-indigo-950/70 hover:bg-indigo-900/80 text-indigo-200 hover:text-white text-xs font-semibold border border-indigo-700/60 transition-colors cursor-pointer min-w-0"
-            >
-              <div className="flex items-center gap-2 truncate">
-                <span className={`w-2 h-2 rounded-full shrink-0 ${userEmail ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-                <span className="truncate">{userEmail || 'Connexion Firebase'}</span>
-              </div>
-              <span className="text-[10px] bg-indigo-600 text-white px-1.5 py-0.5 rounded font-bold shrink-0 ml-1">
-                {userEmail ? 'Compte' : 'Login'}
-              </span>
-            </button>
+        <div className={`border-t border-[#1e4e40] bg-[#0c3126] ${isCollapsed && !isOpenMobile ? 'p-2 space-y-2' : 'p-3 space-y-2'}`}>
+          {!isCollapsed || isOpenMobile ? (
+            <>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => {
+                    onOpenAuth();
+                    onCloseMobile();
+                  }}
+                  className="flex-1 flex items-center justify-between px-3 py-2 rounded-lg bg-indigo-950/70 hover:bg-indigo-900/80 text-indigo-200 hover:text-white text-xs font-semibold border border-indigo-700/60 transition-colors cursor-pointer min-w-0"
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${userEmail ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                    <span className="truncate">{userEmail || 'Connexion Firebase'}</span>
+                  </div>
+                  <span className="text-[10px] bg-indigo-600 text-white px-1.5 py-0.5 rounded font-bold shrink-0 ml-1">
+                    {userEmail ? 'Compte' : 'Login'}
+                  </span>
+                </button>
 
-            {userEmail && onLogout && (
+                {userEmail && onLogout && (
+                  <button
+                    onClick={() => {
+                      onLogout();
+                      onCloseMobile();
+                    }}
+                    title="Se déconnecter"
+                    className="p-2 rounded-lg bg-rose-950/70 hover:bg-rose-900 text-rose-200 hover:text-white border border-rose-800/60 transition-colors shrink-0 cursor-pointer"
+                    aria-label="Se déconnecter"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              <button
+                onClick={onResetSeedData}
+                className="w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-900/40 hover:bg-emerald-900 text-emerald-200 hover:text-white text-[11px] font-semibold border border-emerald-700/40 transition-colors cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                Réinitialiser démo
+              </button>
+            </>
+          ) : (
+            <div className="flex flex-col items-center space-y-2">
               <button
                 onClick={() => {
-                  onLogout();
+                  onOpenAuth();
                   onCloseMobile();
                 }}
-                title="Se déconnecter"
-                className="p-2 rounded-lg bg-rose-950/70 hover:bg-rose-900 text-rose-200 hover:text-white border border-rose-800/60 transition-colors shrink-0 cursor-pointer"
-                aria-label="Se déconnecter"
+                title={userEmail ? `Connecté : ${userEmail}` : 'Connexion Firebase'}
+                className="w-10 h-10 rounded-xl bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 flex items-center justify-center border border-indigo-700/60 transition-colors cursor-pointer relative"
               >
-                <LogOut className="w-3.5 h-3.5" />
+                <span className={`w-2 h-2 rounded-full absolute top-1 right-1 ${userEmail ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                <span className="text-xs font-bold">{userEmail ? userEmail[0].toUpperCase() : '🔒'}</span>
               </button>
-            )}
-          </div>
 
-          <button
-            onClick={onResetSeedData}
-            className="w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-900/40 hover:bg-emerald-900 text-emerald-200 hover:text-white text-[11px] font-semibold border border-emerald-700/40 transition-colors cursor-pointer"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            Réinitialiser démo
-          </button>
+              <button
+                onClick={onResetSeedData}
+                title="Réinitialiser démo"
+                className="w-10 h-10 rounded-xl bg-emerald-900/40 hover:bg-emerald-900 text-emerald-200 flex items-center justify-center border border-emerald-700/40 transition-colors cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4 text-amber-300" />
+              </button>
+            </div>
+          )}
         </div>
       </aside>
     </>

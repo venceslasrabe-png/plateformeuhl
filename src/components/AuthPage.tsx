@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
 import { useAuth } from '../firebase/authContext';
 import { RoleType } from '../types';
-import { ROLE_LABELS, UNIVERSITY_LOGO, UNIVERSITY_MOTTO, UNIVERSITY_NAME, UNIVERSITY_CITY } from '../constants/assets';
+import {
+  ROLE_LABELS,
+  ROLE_MISSIONS,
+  UNIVERSITY_LOGO,
+  UNIVERSITY_MOTTO,
+  UNIVERSITY_NAME,
+  UNIVERSITY_CITY,
+} from '../constants/assets';
 import {
   LogIn,
   UserPlus,
@@ -15,13 +22,15 @@ import {
   Mail,
   User as UserIcon,
   Briefcase,
+  Database,
 } from 'lucide-react';
 
 interface AuthPageProps {
   onContinue: () => void;
+  activeRole?: RoleType;
 }
 
-export const AuthPage: React.FC<AuthPageProps> = ({ onContinue }) => {
+export const AuthPage: React.FC<AuthPageProps> = ({ onContinue, activeRole }) => {
   const {
     user,
     profile,
@@ -186,6 +195,18 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onContinue }) => {
                 <ArrowRight className="w-4 h-4" />
               </button>
 
+              {user.email === 'smithrabe35@gmail.com' && (
+                <a
+                  href="https://console.firebase.google.com/project/second-jet-401209/firestore/databases/ai-studio-universithenrilo-62f89908-22f7-4b65-902d-de2afad1c060/data"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full py-2.5 px-4 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold text-xs transition-colors flex items-center justify-center gap-2"
+                >
+                  <Database className="w-4 h-4 text-amber-400" />
+                  Accéder à la console Firestore (Admin) ↗
+                </a>
+              )}
+
               <button
                 onClick={logout}
                 className="w-full py-2.5 px-4 rounded-xl bg-slate-700/60 hover:bg-rose-950/60 hover:text-rose-200 text-slate-300 font-semibold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
@@ -345,7 +366,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onContinue }) => {
 
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1">
-                      Fonction / Rôle souhaité *
+                      Vue Métier d'affectation conditionnée *
                     </label>
                     <div className="relative">
                       <select
@@ -362,6 +383,20 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onContinue }) => {
                           ))}
                       </select>
                       <Briefcase className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />
+                    </div>
+
+                    {/* Conditioned role explanation card */}
+                    <div className="mt-2 p-2.5 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-[11px] text-indigo-200 space-y-1">
+                      <div className="flex items-center gap-1.5 font-semibold text-indigo-300">
+                        <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        <span>Conditionnement : {ROLE_LABELS[role]}</span>
+                      </div>
+                      <p className="text-[10px] text-slate-300 leading-tight">
+                        {ROLE_MISSIONS[role]}
+                      </p>
+                      <p className="text-[10px] text-amber-300/90 font-medium">
+                        ℹ️ Compte soumis à la validation du chef de département ou dans la base Firestore.
+                      </p>
                     </div>
                   </div>
                 </>

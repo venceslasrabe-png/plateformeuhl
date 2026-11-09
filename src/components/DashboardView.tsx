@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Users,
   GraduationCap,
@@ -9,6 +8,13 @@ import {
   FileSpreadsheet,
   FileText,
   UserCheck,
+  Maximize2,
+  Minimize2,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Eye,
+  EyeOff,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { AppData } from '../types';
 import {
@@ -21,14 +27,31 @@ import {
   isStudentLateOnCampus,
 } from '../services/storage';
 import { UNIVERSITY_LOGO } from '../constants/assets';
+import { ExecutiveCharts } from './ExecutiveCharts';
 
 interface Props {
   data: AppData;
   onNavigate: (view: string) => void;
   onExportExcel: () => void;
+  isFullWidth?: boolean;
+  onToggleFullWidth?: () => void;
+  isSidebarCollapsed?: boolean;
+  onToggleSidebar?: () => void;
+  hideHero?: boolean;
+  onToggleHideHero?: () => void;
 }
 
-export const DashboardView: React.FC<Props> = ({ data, onNavigate, onExportExcel }) => {
+export const DashboardView: React.FC<Props> = ({
+  data,
+  onNavigate,
+  onExportExcel,
+  isFullWidth = false,
+  onToggleFullWidth,
+  isSidebarCollapsed = false,
+  onToggleSidebar,
+  hideHero = false,
+  onToggleHideHero,
+}) => {
   const totalStudents = data.students.length;
   const totalParcours = data.parcours.length;
   const totalTeachers = data.teachers.length;
@@ -89,59 +112,163 @@ export const DashboardView: React.FC<Props> = ({ data, onNavigate, onExportExcel
 
   return (
     <div className="space-y-6">
-      {/* Hero Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#0f3b2e] via-[#145341] to-[#1e6b54] text-white p-6 sm:p-8 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="relative z-10 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-amber-300 border border-white/10 mb-3">
-            <span>Pointe-Noire · République du Congo</span>
-            <span className="w-1 h-1 rounded-full bg-amber-400" />
-            <span className="italic font-normal text-emerald-200">« Savoir · Former · Réussir »</span>
+      {/* Barre de réajustement de la vue (Optimisation de l'affichage grand écran) */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-semibold">
+          <SlidersHorizontal className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          <span>Réajustement de la vue des données :</span>
+          <span className="text-[11px] font-normal text-slate-500">
+            {isFullWidth ? 'Mode Pleine Largeur (100% écran actif)' : 'Mode Standard (1280px)'}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Toggle Full Width */}
+          {onToggleFullWidth && (
+            <button
+              type="button"
+              onClick={onToggleFullWidth}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-semibold transition-all cursor-pointer ${
+                isFullWidth
+                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                  : 'bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100'
+              }`}
+            >
+              {isFullWidth ? (
+                <>
+                  <Minimize2 className="w-3.5 h-3.5" />
+                  <span>Vue Standard</span>
+                </>
+              ) : (
+                <>
+                  <Maximize2 className="w-3.5 h-3.5" />
+                  <span>Pleine Largeur (100%)</span>
+                </>
+              )}
+            </button>
+          )}
+
+          {/* Toggle Sidebar */}
+          {onToggleSidebar && (
+            <button
+              type="button"
+              onClick={onToggleSidebar}
+              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 font-semibold transition-all cursor-pointer"
+            >
+              {isSidebarCollapsed ? (
+                <>
+                  <PanelLeftOpen className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>Déployer menu</span>
+                </>
+              ) : (
+                <>
+                  <PanelLeftClose className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Réduire menu</span>
+                </>
+              )}
+            </button>
+          )}
+
+          {/* Toggle Hero Banner */}
+          {onToggleHideHero && (
+            <button
+              type="button"
+              onClick={onToggleHideHero}
+              title={hideHero ? "Afficher le bandeau d'accueil" : "Masquer le bandeau pour remonter les données"}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 font-semibold transition-all cursor-pointer"
+            >
+              {hideHero ? (
+                <>
+                  <Eye className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>Afficher bandeau</span>
+                </>
+              ) : (
+                <>
+                  <EyeOff className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Masquer bandeau</span>
+                </>
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Hero Banner (Collapsible) */}
+      {!hideHero ? (
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#0f3b2e] via-[#145341] to-[#1e6b54] text-white p-6 sm:p-8 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="relative z-10 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-amber-300 border border-white/10 mb-3">
+              <span>Pointe-Noire · République du Congo</span>
+              <span className="w-1 h-1 rounded-full bg-amber-400" />
+              <span className="italic font-normal text-emerald-200">« Savoir · Former · Réussir »</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold font-['Bricolage_Grotesque'] tracking-tight mb-2">
+              Université Henri Lopes
+            </h1>
+            <p className="text-emerald-100 text-sm leading-relaxed mb-5 max-w-xl">
+              Système d'information intégré pour la gestion des inscriptions LMD, la scolarité financière, l'évaluation académique, le contrôle des accès et la délivrance des documents officiels.
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={() => onNavigate('etu')}
+                className="px-4 py-2.5 rounded-xl bg-[#e8b923] text-slate-950 font-bold text-xs hover:bg-amber-400 transition-all shadow-md shadow-amber-900/30 cursor-pointer"
+              >
+                Nouvelle Inscription
+              </button>
+              <button
+                onClick={() => onNavigate('notes')}
+                className="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/20 text-white font-medium text-xs border border-white/20 transition-colors cursor-pointer"
+              >
+                Relevés & Notes LMD
+              </button>
+              <button
+                onClick={() => onNavigate('surv')}
+                className="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/20 text-white font-medium text-xs border border-white/20 transition-colors cursor-pointer"
+              >
+                Contrôle Campus
+              </button>
+            </div>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold font-['Bricolage_Grotesque'] tracking-tight mb-2">
-            Université Henri Lopes
-          </h1>
-          <p className="text-emerald-100 text-sm leading-relaxed mb-5 max-w-xl">
-            Système d'information intégré pour la gestion des inscriptions LMD, la scolarité financière, l'évaluation académique, le contrôle des accès et la délivrance des documents officiels.
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
+
+          {/* Official Crest Badge */}
+          <div className="relative z-10 shrink-0 self-center md:self-auto bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 shadow-xl flex flex-col items-center text-center">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-white p-2 shadow-lg mb-2 flex items-center justify-center">
+              <img
+                src={UNIVERSITY_LOGO}
+                alt="Emblème officiel de l'Université Henri Lopes"
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <span className="text-[11px] font-bold text-white tracking-wide uppercase">
+              Université Henri Lopes
+            </span>
+            <span className="text-[10px] text-amber-300 font-semibold mt-0.5">
+              Pointe-Noire
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-[#0f3b2e] to-[#145341] text-white text-xs">
+          <div className="flex items-center gap-2">
+            <span className="font-bold font-['Bricolage_Grotesque']">Université Henri Lopes · Pointe-Noire</span>
+            <span className="text-emerald-200 hidden sm:inline">« Savoir · Former · Réussir »</span>
+          </div>
+          <div className="flex items-center gap-2">
             <button
               onClick={() => onNavigate('etu')}
-              className="px-4 py-2.5 rounded-xl bg-[#e8b923] text-slate-950 font-bold text-xs hover:bg-amber-400 transition-all shadow-md shadow-amber-900/30 cursor-pointer"
+              className="px-2.5 py-1 rounded-lg bg-[#e8b923] text-slate-950 font-bold hover:bg-amber-400 text-[11px] cursor-pointer"
             >
-              Nouvelle Inscription
+              + Inscription
             </button>
             <button
               onClick={() => onNavigate('notes')}
-              className="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/20 text-white font-medium text-xs border border-white/20 transition-colors cursor-pointer"
+              className="px-2.5 py-1 rounded-lg bg-white/20 text-white font-medium hover:bg-white/30 text-[11px] cursor-pointer"
             >
-              Relevés & Notes LMD
-            </button>
-            <button
-              onClick={() => onNavigate('surv')}
-              className="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/20 text-white font-medium text-xs border border-white/20 transition-colors cursor-pointer"
-            >
-              Contrôle Campus
+              Relevés LMD
             </button>
           </div>
         </div>
-
-        {/* Official Crest Badge */}
-        <div className="relative z-10 shrink-0 self-center md:self-auto bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 shadow-xl flex flex-col items-center text-center">
-          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-white p-2 shadow-lg mb-2 flex items-center justify-center">
-            <img
-              src={UNIVERSITY_LOGO}
-              alt="Emblème officiel de l'Université Henri Lopes"
-              className="w-full h-full object-contain"
-            />
-          </div>
-          <span className="text-[11px] font-bold text-white tracking-wide uppercase">
-            Université Henri Lopes
-          </span>
-          <span className="text-[10px] text-amber-300 font-semibold mt-0.5">
-            Pointe-Noire
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* KPI Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -249,6 +376,9 @@ export const DashboardView: React.FC<Props> = ({ data, onNavigate, onExportExcel
           </span>
         </div>
       </div>
+
+      {/* Visualisations Recharts : Taux de réussite par semestre & Évolution des inscriptions */}
+      <ExecutiveCharts data={data} onNavigate={onNavigate} />
 
       {/* Two Column Section: Levels & Alerts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

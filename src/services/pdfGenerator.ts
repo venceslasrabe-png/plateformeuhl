@@ -106,110 +106,234 @@ export const downloadStudentCardPdf = async (student: Student, data: AppData) =>
   });
 
   const p = data.parcours.find((x) => x.id === student.parcours);
-  const parcoursName = p?.nom || 'Formation Supérieure';
+  const filiereName = student.fil || p?.dom || 'Sciences & Technologies';
+  const optionName = p?.nom || 'Formation Supérieure LMD';
 
-  // Header
-  await addLogo(doc, 8, 8, 4.8);
-  doc.setTextColor(BL[0], BL[1], BL[2]);
+  // ==========================================
+  // PAGE 1: RECTO (FACE AVANT)
+  // ==========================================
+  // Institutional Header
+  await addLogo(doc, 7, 7, 4.2);
+  doc.setTextColor(15, 59, 46);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7);
-  doc.text('UNIVERSITÉ', 14, 7);
-  doc.text('HENRI LOPES', 14, 10.4);
+  doc.setFontSize(6.8);
+  doc.text('UNIVERSITÉ HENRI LOPES', 13, 6.5);
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(4.5);
-  doc.setTextColor(110, 110, 110);
-  doc.text('Pointe-Noire · Congo', 14, 13);
+  doc.setFontSize(4.2);
+  doc.setTextColor(90, 90, 90);
+  doc.text('Pointe-Noire · République du Congo', 13, 9.5);
 
-  // Card Title
+  // Document Title Banner (Centered across 54mm card)
+  doc.setFillColor(232, 185, 35); // UHL Gold
+  doc.roundedRect(3, 12, 48, 4.8, 1, 1, 'F');
+  doc.setTextColor(15, 20, 25);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.5);
-  doc.setTextColor(BL[0], BL[1], BL[2]);
-  doc.text('CARTE D’ÉTUDIANT', 3, 20);
+  doc.setFontSize(6.8);
+  doc.text('CARTE D’ÉTUDIANT', 27, 15.5, { align: 'center' });
 
-  // Student Photo or Placeholder
+  // Student Photo (3.5mm, 18.5mm, w=20, h=25)
   if (student.photo) {
     try {
-      doc.addImage(student.photo, 'JPEG', 3, 23, 21, 26);
+      doc.addImage(student.photo, 'JPEG', 3.5, 18.5, 20, 25);
     } catch {
-      doc.setFillColor(227, 235, 245);
-      doc.roundedRect(3, 23, 21, 26, 2, 2, 'F');
+      doc.setFillColor(235, 240, 245);
+      doc.roundedRect(3.5, 18.5, 20, 25, 1.5, 1.5, 'F');
     }
   } else {
-    doc.setFillColor(227, 235, 245);
-    doc.roundedRect(3, 23, 21, 26, 2, 2, 'F');
+    doc.setFillColor(235, 240, 245);
+    doc.roundedRect(3.5, 18.5, 20, 25, 1.5, 1.5, 'F');
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
-    doc.setTextColor(BL[0], BL[1], BL[2]);
+    doc.setFontSize(10);
+    doc.setTextColor(15, 59, 46);
     const initials = (student.prenom[0] || 'E') + (student.nom[0] || 'H');
-    doc.text(initials, 13.5, 37, { align: 'center' });
+    doc.text(initials, 13.5, 33, { align: 'center' });
   }
 
-  // Academic Year Badge
+  // Right Column: Academic Year, Level, QR Code
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(4.5);
+  doc.setFontSize(3.8);
   doc.setTextColor(100, 100, 100);
-  doc.text('Année Académique', 26, 25.5);
-  doc.setFillColor(GR[0], GR[1], GR[2]);
-  doc.roundedRect(26, 27, 24, 5, 2.5, 2.5, 'F');
+  doc.text('ANNÉE ACADÉMIQUE', 25.5, 21);
+  doc.setFillColor(15, 59, 46);
+  doc.roundedRect(25.5, 22, 25, 4.2, 1.2, 1.2, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(6);
-  doc.text(data.p.ann, 38, 30.6, { align: 'center' });
+  doc.setFontSize(5.5);
+  doc.text(data.p.ann, 38, 25.2, { align: 'center' });
 
-  // Name
-  doc.setTextColor(BL[0], BL[1], BL[2]);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7.5);
-  const fullName = `${student.prenom} ${student.nom}`.toUpperCase();
-  doc.text(fullName, 3, 53.5, { maxWidth: 48 });
-
-  // Option / Filière
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(4);
-  doc.setTextColor(130, 130, 130);
-  doc.text('FILIÈRE / OPTION', 3, 58);
+  doc.setFontSize(3.8);
+  doc.setTextColor(100, 100, 100);
+  doc.text('CYCLE & NIVEAU', 25.5, 29);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(5.8);
-  doc.setTextColor(BL[0], BL[1], BL[2]);
-  doc.text(parcoursName, 3, 61.5, { maxWidth: 28 });
-
-  // Niveau
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(4);
-  doc.setTextColor(130, 130, 130);
-  doc.text('NIVEAU', 3, 66.5);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(6.5);
-  doc.setTextColor(BL[0], BL[1], BL[2]);
-  doc.text(student.niveau, 3, 70);
+  doc.setFontSize(5.5);
+  doc.setTextColor(15, 59, 46);
+  doc.text(`${p?.cycle || 'Licence'} · ${student.niveau}`, 25.5, 32.5);
 
   // QR Code
   try {
     const qrDataUrl = await QRCode.toDataURL(student.mat, {
       margin: 1,
-      width: 128,
-      color: { dark: '#1f5fae', light: '#ffffff' },
+      width: 140,
+      color: { dark: '#0f3b2e', light: '#ffffff' },
     });
-    doc.addImage(qrDataUrl, 'PNG', 33, 55.5, 17, 17);
+    doc.addImage(qrDataUrl, 'PNG', 28.5, 34, 18, 18);
   } catch (e) {
     console.warn('QR Code generation failed', e);
   }
 
-  // Matricule pill
-  doc.setFillColor(GR[0], GR[1], GR[2]);
-  doc.roundedRect(3, 72.5, 27, 4.6, 2.3, 2.3, 'F');
-  doc.setTextColor(255, 255, 255);
+  // Name Label & Value
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(3.8);
+  doc.setTextColor(110, 110, 110);
+  doc.text('NOM(S) ET PRÉNOM(S)', 3.5, 46.5);
+  doc.setTextColor(15, 59, 46);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(5.5);
-  doc.text(student.mat, 16.5, 75.8, { align: 'center' });
+  doc.setFontSize(7.2);
+  const fullName = `${student.nom} ${student.prenom}`.toUpperCase();
+  doc.text(fullName, 3.5, 50.5, { maxWidth: 47 });
 
-  // Waves & Footer
-  drawCardWaves(doc, -1.3, GR);
-  drawCardWaves(doc, 0, BL);
+  // Matricule badge
+  doc.setFillColor(15, 59, 46);
+  doc.roundedRect(3.5, 52.5, 25, 4.2, 1.2, 1.2, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(6.5);
-  doc.text('ID ÉTUDIANT', 27, 82.5, { align: 'center' });
+  doc.setFontSize(5.2);
+  doc.text(student.mat, 16, 55.6, { align: 'center' });
+
+  // Filière & Option on Recto
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(3.8);
+  doc.setTextColor(110, 110, 110);
+  doc.text('FILIÈRE :', 3.5, 60);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(5.2);
+  doc.setTextColor(30, 30, 30);
+  doc.text(filiereName, 17, 60, { maxWidth: 33 });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(3.8);
+  doc.setTextColor(110, 110, 110);
+  doc.text('OPTION :', 3.5, 64.5);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(5.2);
+  doc.setTextColor(15, 59, 46);
+  doc.text(optionName, 17, 64.5, { maxWidth: 33 });
+
+  // Recto Wave & Footer
+  drawCardWaves(doc, -1.3, [232, 185, 35]);
+  drawCardWaves(doc, 0, [15, 59, 46]);
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(5.8);
+  doc.text('ID ÉTUDIANT OFFICIEL · UHL', 27, 82.5, { align: 'center' });
+
+  // ==========================================
+  // PAGE 2: VERSO (FACE ARRIÈRE)
+  // Contient: Téléphone, Email, Filière, Option
+  // ==========================================
+  doc.addPage([54, 85.6], 'portrait');
+
+  // Verso Header
+  doc.setFillColor(15, 59, 46);
+  doc.rect(0, 0, 54, 12, 'F');
+  await addLogo(doc, 6.5, 6, 3.8);
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(6.8);
+  doc.text('UNIVERSITÉ HENRI LOPES', 12, 5.5);
+  doc.setFontSize(4.2);
+  doc.setTextColor(232, 185, 35);
+  doc.text('AUTHENTIFICATION & CONTACTS ÉTUDIANT', 12, 9);
+
+  // Box 1: Coordonnées Étudiant (Téléphone & Email)
+  doc.setDrawColor(215, 220, 225);
+  doc.setFillColor(248, 250, 252);
+  doc.roundedRect(3.5, 14, 47, 16, 1.2, 1.2, 'FD');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(4);
+  doc.setTextColor(110, 110, 110);
+  doc.text('NUMÉRO DE TÉLÉPHONE :', 5.5, 17.5);
+  doc.setFontSize(5.6);
+  doc.setTextColor(15, 59, 46);
+  doc.text(student.tel || '+242 06 000 00 00', 5.5, 21.5);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(4);
+  doc.setTextColor(110, 110, 110);
+  doc.text('ADRESSE EMAIL :', 5.5, 25);
+  doc.setFontSize(5);
+  doc.setTextColor(20, 20, 20);
+  const emailStr = student.email || `${student.prenom.toLowerCase()}.${student.nom.toLowerCase()}@universite-henrilopes.cg`;
+  doc.text(emailStr, 5.5, 28.5, { maxWidth: 43 });
+
+  // Box 2: Filière & Option (Verso)
+  doc.setFillColor(243, 249, 246);
+  doc.setDrawColor(180, 215, 200);
+  doc.roundedRect(3.5, 31.5, 47, 17, 1.2, 1.2, 'FD');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(4);
+  doc.setTextColor(15, 59, 46);
+  doc.text('FILIÈRE ACADÉMIQUE :', 5.5, 35.5);
+  doc.setFontSize(5.4);
+  doc.setTextColor(30, 30, 30);
+  doc.text(filiereName, 5.5, 39, { maxWidth: 43 });
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(4);
+  doc.setTextColor(15, 59, 46);
+  doc.text('OPTION DE SPÉCIALITÉ :', 5.5, 43);
+  doc.setFontSize(5.4);
+  doc.setTextColor(15, 59, 46);
+  doc.text(optionName, 5.5, 46.5, { maxWidth: 43 });
+
+  // Civil & Emergency
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(4);
+  doc.setTextColor(90, 90, 90);
+  doc.text(`Né(e) le : ${student.naiss || '2004-01-01'} à ${student.lieu || 'Pointe-Noire'}`, 3.5, 51.5);
+  if (student.tut) {
+    doc.text(`Contact d'urgence : ${student.tut} (${student.ttut || student.tel})`, 3.5, 55);
+  }
+
+  // Regulatory Notice
+  doc.setFillColor(245, 245, 245);
+  doc.roundedRect(3.5, 57.5, 47, 9.5, 1, 1, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(3.6);
+  doc.setTextColor(80, 80, 80);
+  doc.text('AVIS RÉGLEMENTAIRE & SÉCURITÉ', 27, 60.5, { align: 'center' });
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(3.3);
+  doc.setTextColor(110, 110, 110);
+  doc.text('Carte strictement personnelle. Obligatoire sur les campus et examens.', 27, 63, { align: 'center' });
+  doc.text('En cas de perte, rapporter à la Scolarité : BP 1254 Pointe-Noire.', 27, 65.5, { align: 'center' });
+
+  // Signature Block
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(4);
+  doc.setTextColor(80, 80, 80);
+  doc.text('Direction de la Scolarité', 4.5, 70.5);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(15, 59, 46);
+  doc.text('Dr. M. Mavoungou', 4.5, 73.5);
+
+  doc.setFillColor(232, 185, 35);
+  doc.roundedRect(34, 69.5, 16.5, 5, 0.8, 0.8, 'F');
+  doc.setTextColor(15, 20, 25);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(4);
+  doc.text('UHL-CERTIFIÉ', 42.25, 73, { align: 'center' });
+
+  // Bottom Barcode line
+  doc.setFillColor(20, 25, 30);
+  doc.rect(0, 77.6, 54, 8, 'F');
+  doc.setTextColor(220, 220, 220);
+  doc.setFont('courier', 'bold');
+  doc.setFontSize(5.5);
+  doc.text(`|||||  ${student.mat}  |||||||||||||`, 27, 82.5, { align: 'center' });
 
   downloadBlob(`carte_pvc_${student.mat}.pdf`, doc.output('blob'));
 };
@@ -456,73 +580,139 @@ export const downloadTranscriptPdf = async (
     }
   };
 
-  // Header with Official Logo
-  await addLogo(doc, 23, 20, 8.5);
-  doc.setTextColor(30, 30, 30);
+  // 1. Top Institutional Header
+  await addLogo(doc, 24, 18, 8.5);
+  doc.setTextColor(15, 59, 46);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10.5);
-  T('UNIVERSITÉ HENRI LOPES', 34, 16);
+  doc.setFontSize(11);
+  T('UNIVERSITÉ HENRI LOPES', 35, 15);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
-  T('Pointe-Noire · République du Congo', 34, 20.5);
-  const contacts = [
-    data.p.adr,
-    data.p.tel && 'Tél : ' + data.p.tel,
-    data.p.mail && 'Email : ' + data.p.mail,
-  ].filter(Boolean);
-  contacts.forEach((c, idx) => {
-    T(c as string, 34, 24.5 + idx * 3.8);
-  });
+  doc.setTextColor(63, 154, 77);
+  T('Pointe-Noire · République du Congo', 35, 19.5);
+  doc.setFontSize(6.8);
+  doc.setTextColor(110, 110, 110);
+  T('« Savoir · Former · Réussir »', 35, 23.5);
+  T('BP 1254 · Tél : +242 06 650 12 34 · contact@universite-henrilopes.cg', 35, 27.5);
 
-  // Relevé title & number
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.setTextColor(BL[0], BL[1], BL[2]);
-  T('Relevé de notes', 105, 16);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.setTextColor(80, 80, 80);
-  T('N° ' + student.mat.split('-').pop() + sem + '-' + data.p.ann.slice(0, 4), 105, 21.5);
-
-  // Student Photo or box
+  // Student Photo (Top Right)
   if (student.photo) {
     try {
-      doc.addImage(student.photo, 'JPEG', 160, 10, 30, 38);
+      doc.addImage(student.photo, 'JPEG', 165, 10, 30, 38);
+      doc.setDrawColor(180, 180, 180);
+      doc.rect(165, 10, 30, 38);
     } catch {
-      doc.setDrawColor(90);
-      doc.rect(160, 10, 30, 38);
+      doc.setDrawColor(180, 180, 180);
+      doc.rect(165, 10, 30, 38);
     }
   } else {
-    doc.setDrawColor(90);
-    doc.rect(160, 10, 30, 38);
+    doc.setDrawColor(180, 180, 180);
+    doc.rect(165, 10, 30, 38);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(15, 59, 46);
+    const initials = (student.prenom[0] || 'E') + (student.nom[0] || 'H');
+    T(initials, 180, 30, { align: 'center' });
   }
 
-  // Student details
-  doc.setFontSize(9);
-  const meta: Array<[string, string]> = [
-    ['Étudiant', student.mat],
-    ['Nom(s) & Prénom(s)', `${student.nom} ${student.prenom}`],
-    ['Option / Parcours', p?.nom || '—'],
-    ['Cycle', p?.cycle || '—'],
-    ['Niveau', student.niveau],
-    ['Année académique', data.p.ann],
-  ];
+  // 2. Official Document Title Banner (Across width, centered at 105mm)
+  doc.setFillColor(243, 248, 245);
+  doc.setDrawColor(15, 59, 46);
+  doc.setLineWidth(0.4);
+  doc.roundedRect(x0, 42, 145, 14, 1.5, 1.5, 'FD');
 
-  meta.forEach(([k, v], idx) => {
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(80, 80, 80);
-    T(k + ' :', x0, 46 + idx * 5.2);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(0, 0, 0);
-    T(v, x0 + 38, 46 + idx * 5.2);
-  });
-
-  doc.setFontSize(10.5);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(BL[0], BL[1], BL[2]);
-  T('SESSION D’EXAMEN — SEMESTRE ' + sem.slice(1), x0, 46 + 6 * 5.2 + 2);
+  doc.setFontSize(12);
+  doc.setTextColor(15, 59, 46);
+  T('BULLETIN OFFICIEL DE NOTES & RÉSULTATS LMD', 87.5, 47.5, { align: 'center' });
 
-  y = 85;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.setTextColor(180, 130, 20); // UHL Gold
+  T('SESSION ORDINAIRE — SEMESTRE ' + sem.slice(1) + ' · ANNÉE ACADÉMIQUE ' + data.p.ann, 87.5, 52.5, { align: 'center' });
+
+  // 3. Student Identification Card (2 Balanced Columns, 180mm width)
+  doc.setFillColor(255, 255, 255);
+  doc.setDrawColor(210, 215, 220);
+  doc.setLineWidth(0.2);
+  doc.roundedRect(x0, 59, 180, 24, 1.5, 1.5, 'FD');
+
+  // Left column (x=18mm)
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.2);
+  doc.setTextColor(120, 120, 120);
+  T('MATRICULE :', 18, 64.5);
+  doc.setTextColor(15, 59, 46);
+  doc.setFontSize(8);
+  T(student.mat, 45, 64.5);
+
+  doc.setFontSize(7.2);
+  doc.setTextColor(120, 120, 120);
+  T('NOM & PRÉNOMS :', 18, 69.5);
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(7.8);
+  T(`${student.nom} ${student.prenom}`.toUpperCase(), 45, 69.5);
+
+  doc.setFontSize(7.2);
+  doc.setTextColor(120, 120, 120);
+  T('NÉ(E) LE :', 18, 74.5);
+  doc.setTextColor(40, 40, 40);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  T(`${student.naiss || '—'} à ${student.lieu || '—'}`, 45, 74.5);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.2);
+  doc.setTextColor(120, 120, 120);
+  T('CONTACT :', 18, 79.5);
+  doc.setTextColor(40, 40, 40);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.2);
+  T(`${student.tel || '—'} · ${student.email || '—'}`, 45, 79.5);
+
+  // Right column (x=105mm)
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.2);
+  doc.setTextColor(120, 120, 120);
+  T('FILIÈRE :', 105, 64.5);
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(7.8);
+  T(student.fil || p?.dom || 'Sciences et Technologies', 132, 64.5);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.2);
+  doc.setTextColor(120, 120, 120);
+  T('OPTION / PARCOURS :', 105, 69.5);
+  doc.setTextColor(15, 59, 46);
+  doc.setFontSize(7.8);
+  T(p?.nom || 'Formation LMD', 132, 69.5);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.2);
+  doc.setTextColor(120, 120, 120);
+  T('CYCLE & NIVEAU :', 105, 74.5);
+  doc.setTextColor(40, 40, 40);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  T(`${p?.cycle || 'Licence'} — ${student.niveau}`, 132, 74.5);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.2);
+  doc.setTextColor(120, 120, 120);
+  T('STATUT ACADÉMIQUE :', 105, 79.5);
+  doc.setTextColor(63, 154, 77);
+  doc.setFontSize(7.5);
+  T('Inscrit(e) régulier · Dossier complet', 132, 79.5);
+
+  // 4. Section Title Banner: Results detail
+  doc.setFillColor(15, 59, 46);
+  doc.rect(x0, 86, 180, 6.5, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.8);
+  T('RÉSULTATS DÉTAILLÉS PAR UNITÉ D’ENSEIGNEMENT (UE) ET ÉLÉMENTS CONSTITUTIFS (EC)', 105, 90.5, { align: 'center' });
+
+  y = 96;
 
   // Render UEs and ECs
   res.rows.forEach(([u, ueAvg]) => {
@@ -532,13 +722,17 @@ export const downloadTranscriptPdf = async (
       y = 15;
     }
 
+    doc.setFillColor(238, 244, 240);
+    doc.rect(x0, y, 180, 5.5, 'F');
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.5);
-    doc.setTextColor(0, 0, 0);
-    T('Unité d’Enseignement : ' + u.nom, x0, y + 4);
+    doc.setFontSize(7.8);
+    doc.setTextColor(15, 59, 46);
+    T('Unité d’Enseignement (UE) : ' + (u.code ? u.code + ' — ' : '') + u.nom, x0 + 2, y + 3.8);
     const avgStr = ueAvg !== null ? ueAvg.toFixed(2) : '—';
-    T('Moyenne UE : ' + avgStr, x0 + 130, y + 4);
-    y += 6;
+    const isVal = ueAvg !== null && (ueAvg >= data.p.seuil || (res.moy !== null && res.moy >= data.p.seuil));
+    doc.setTextColor(isVal ? 15 : 180, isVal ? 100 : 30, isVal ? 40 : 30);
+    T('Moyenne UE : ' + avgStr + ' / 20  [' + (isVal ? 'Capitalisée' : 'Non validée') + ']', x0 + 178, y + 3.8, { align: 'right' });
+    y += 5.5;
 
     let x = x0;
     const headers = [
