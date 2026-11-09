@@ -149,84 +149,120 @@ export const downloadStudentCardPdf = async (student: Student, data: AppData) =>
     doc.text(initials, 13.5, 33, { align: 'center' });
   }
 
-  // Right Column: Academic Year, Level, QR Code
+  // Right Column: Academic Year, Level, Matricule (next to photo)
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(3.8);
   doc.setTextColor(100, 100, 100);
-  doc.text('ANNÉE ACADÉMIQUE', 25.5, 21);
+  doc.text('ANNÉE ACADÉMIQUE', 25.5, 20.2);
   doc.setFillColor(15, 59, 46);
-  doc.roundedRect(25.5, 22, 25, 4.2, 1.2, 1.2, 'F');
+  doc.roundedRect(25.5, 21.2, 25, 4.2, 1.2, 1.2, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(5.5);
-  doc.text(data.p.ann, 38, 25.2, { align: 'center' });
+  doc.text(data.p.ann, 38, 24.2, { align: 'center' });
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(3.8);
   doc.setTextColor(100, 100, 100);
-  doc.text('CYCLE & NIVEAU', 25.5, 29);
+  doc.text('CYCLE & NIVEAU', 25.5, 28);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(5.5);
+  doc.setFontSize(5.2);
   doc.setTextColor(15, 59, 46);
-  doc.text(`${p?.cycle || 'Licence'} · ${student.niveau}`, 25.5, 32.5);
+  doc.text(`${p?.cycle || 'Licence'} · ${student.niveau}`, 25.5, 31.5);
 
-  // QR Code
-  try {
-    const qrDataUrl = await QRCode.toDataURL(student.mat, {
-      margin: 1,
-      width: 140,
-      color: { dark: '#0f3b2e', light: '#ffffff' },
-    });
-    doc.addImage(qrDataUrl, 'PNG', 28.5, 34, 18, 18);
-  } catch (e) {
-    console.warn('QR Code generation failed', e);
-  }
-
-  // Name Label & Value
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(3.8);
-  doc.setTextColor(110, 110, 110);
-  doc.text('NOM(S) ET PRÉNOM(S)', 3.5, 46.5);
-  doc.setTextColor(15, 59, 46);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7.2);
-  const fullName = `${student.nom} ${student.prenom}`.toUpperCase();
-  doc.text(fullName, 3.5, 50.5, { maxWidth: 47 });
-
-  // Matricule badge
+  doc.setTextColor(100, 100, 100);
+  doc.text('MATRICULE ÉTUDIANT', 25.5, 35.5);
   doc.setFillColor(15, 59, 46);
-  doc.roundedRect(3.5, 52.5, 25, 4.2, 1.2, 1.2, 'F');
+  doc.roundedRect(25.5, 36.5, 25, 4.5, 1.2, 1.2, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(5.2);
-  doc.text(student.mat, 16, 55.6, { align: 'center' });
+  doc.text(student.mat, 38, 39.8, { align: 'center' });
+
+  // Identity Card Section: Full Width, 100% Unobstructed Name Visibility
+  doc.setFillColor(248, 250, 252);
+  doc.setDrawColor(215, 222, 230);
+  doc.roundedRect(3.5, 44.5, 47, 18.5, 1.2, 1.2, 'FD');
+
+  // Name Label & Value (Full width, zero overlap from QR code)
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(3.8);
+  doc.setTextColor(100, 100, 100);
+  doc.text('NOM(S) ET PRÉNOM(S) :', 5.5, 48);
+  doc.setTextColor(15, 59, 46);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(6.8);
+  const fullName = `${student.nom} ${student.prenom}`.toUpperCase();
+  doc.text(fullName, 5.5, 52, { maxWidth: 43 });
 
   // Filière & Option on Recto
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(3.8);
-  doc.setTextColor(110, 110, 110);
-  doc.text('FILIÈRE :', 3.5, 60);
+  doc.setTextColor(100, 100, 100);
+  doc.text('FILIÈRE :', 5.5, 56.5);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(5.2);
+  doc.setFontSize(5);
   doc.setTextColor(30, 30, 30);
-  doc.text(filiereName, 17, 60, { maxWidth: 33 });
+  doc.text(filiereName, 16.5, 56.5, { maxWidth: 31 });
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(3.8);
-  doc.setTextColor(110, 110, 110);
-  doc.text('OPTION :', 3.5, 64.5);
+  doc.setTextColor(100, 100, 100);
+  doc.text('OPTION :', 5.5, 60.5);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(5.2);
+  doc.setFontSize(5);
   doc.setTextColor(15, 59, 46);
-  doc.text(optionName, 17, 64.5, { maxWidth: 33 });
+  doc.text(optionName, 16.5, 60.5, { maxWidth: 31 });
 
-  // Recto Wave & Footer
-  drawCardWaves(doc, -1.3, [232, 185, 35]);
-  drawCardWaves(doc, 0, [15, 59, 46]);
+  // Bottom Control & Security Section: QR Code placed at bottom right, completely away from name
+  doc.setFillColor(240, 253, 244);
+  doc.setDrawColor(187, 247, 208);
+  doc.roundedRect(3.5, 63.8, 29.5, 15.5, 1.2, 1.2, 'FD');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(4.2);
+  doc.setTextColor(15, 59, 46);
+  doc.text('ID ÉTUDIANT CERTIFIÉ', 5.5, 67.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(3.4);
+  doc.setTextColor(70, 80, 90);
+  doc.text('Contrôle guérite & présences', 5.5, 71.2);
+  doc.text('Propriété officielle UHL', 5.5, 74.5);
+  doc.setFont('courier', 'bold');
+  doc.setFontSize(4);
+  doc.setTextColor(15, 59, 46);
+  doc.text(student.mat, 5.5, 77.8);
+
+  // QR Code Box (Bottom Right: x=34.5, y=63.8, w=16, h=15.5) - strictly square, pure white background
+  doc.setFillColor(255, 255, 255);
+  doc.setDrawColor(200, 215, 210);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(34.5, 63.8, 16, 15.5, 1.2, 1.2, 'FD');
+  try {
+    const qrDataUrl = await QRCode.toDataURL(student.mat, {
+      margin: 1,
+      width: 160,
+      color: { dark: '#0f3b2e', light: '#ffffff' },
+    });
+    // Centered 13.5 x 13.5 mm square QR code (ends at y=78.3mm, safely above footer)
+    doc.addImage(qrDataUrl, 'PNG', 35.75, 64.8, 13.5, 13.5);
+  } catch (e) {
+    console.warn('QR Code generation failed', e);
+  }
+
+  // Recto Reduced Slim Footer Ribbon: Yellow stripe (0.7mm) + Green band (4.1mm)
+  // Perfectly positioned at the very bottom (y=80.8mm to 85.6mm) without ever touching or altering QR code shape
+  doc.setFillColor(232, 185, 35); // Gold Accent Ribbon
+  doc.rect(0, 80.8, 54, 0.7, 'F');
+
+  doc.setFillColor(15, 59, 46); // Deep Green UHL Band
+  doc.rect(0, 81.5, 54, 4.1, 'F');
+
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(5.8);
-  doc.text('ID ÉTUDIANT OFFICIEL · UHL', 27, 82.5, { align: 'center' });
+  doc.setFontSize(5.0);
+  doc.text('RÉPUBLIQUE DU CONGO · UHL', 27, 84.4, { align: 'center' });
 
   // ==========================================
   // PAGE 2: VERSO (FACE ARRIÈRE)

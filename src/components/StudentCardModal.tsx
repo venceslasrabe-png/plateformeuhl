@@ -197,12 +197,12 @@ export const StudentCardModal: React.FC<Props> = ({ student, data, onClose }) =>
                     </div>
                   </div>
 
-                  {/* Student Full Name */}
-                  <div className="mt-2 pt-1 border-t border-slate-200">
+                  {/* Student Full Name: 100% unobstructed, full width, high contrast */}
+                  <div className="mt-2 p-1.5 bg-slate-50/90 rounded-lg border border-slate-200/80">
                     <span className="text-[7px] text-slate-400 font-bold block uppercase tracking-wider">
                       Nom(s) & Prénom(s)
                     </span>
-                    <b className="text-[11px] font-extrabold text-[#0f3b2e] block leading-tight truncate uppercase">
+                    <b className="text-[11px] font-extrabold text-[#0f3b2e] block leading-snug uppercase tracking-wide break-words">
                       {student.nom} {student.prenom}
                     </b>
                   </div>
@@ -228,24 +228,33 @@ export const StudentCardModal: React.FC<Props> = ({ student, data, onClose }) =>
                     </div>
                   </div>
 
-                  {/* QR Code & Barcode Row */}
-                  <div className="flex items-center justify-between mt-1 pt-1 border-t border-slate-100">
-                    <div className="text-[7px] text-slate-400 leading-tight">
-                      <span className="block font-bold text-slate-600">ID ÉTUDIANT CERTIFIÉ</span>
-                      <span>Scan de contrôle guérite</span>
+                  {/* Security & QR Code Section: Bottom right corner, away from student name */}
+                  <div className="flex items-center justify-between mt-1 pt-1 border-t border-slate-100 bg-emerald-50/50 p-2 rounded-xl border border-emerald-100/80">
+                    <div className="text-[7.5px] text-slate-500 leading-tight pr-2">
+                      <span className="block font-bold text-emerald-950 uppercase tracking-wider text-[8px]">
+                        ID Certifié · Sécurité
+                      </span>
+                      <span className="text-slate-400 block text-[6.5px] mt-0.5">Scan contrôle guérite & présences</span>
+                      <div className="mt-1">
+                        <span className="inline-block text-[7px] font-mono font-bold text-emerald-800 bg-white px-1.5 py-0.5 rounded border border-emerald-300 shadow-2xs">
+                          {student.mat}
+                        </span>
+                      </div>
                     </div>
                     {qrSrc && (
-                      <img
-                        src={qrSrc}
-                        alt="QR Code"
-                        className="w-12 h-12 rounded border border-slate-200"
-                      />
+                      <div className="p-1 bg-white rounded-lg border border-slate-200 shadow-xs shrink-0 aspect-square">
+                        <img
+                          src={qrSrc}
+                          alt={`QR Code ${student.mat}`}
+                          className="w-11 h-11 object-contain rounded"
+                        />
+                      </div>
                     )}
                   </div>
                 </div>
 
-                {/* Bottom Wave / Ribbon */}
-                <div className="h-7 bg-[#0f3b2e] text-white flex items-center justify-center text-[8.5px] font-bold tracking-wider uppercase border-t-2 border-[#e8b923]">
+                {/* Reduced Slim Footer Ribbon: Yellow accent border + Green UHL band */}
+                <div className="h-5 bg-[#0f3b2e] text-white flex items-center justify-center text-[7.5px] font-bold tracking-wider uppercase border-t-[1.5px] border-[#e8b923] shrink-0">
                   République du Congo · UHL
                 </div>
               </div>
