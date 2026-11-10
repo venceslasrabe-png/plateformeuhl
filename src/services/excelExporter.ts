@@ -2,6 +2,7 @@ import * as XLSX from 'xlsx';
 import { AppData } from '../types';
 import { calcBalance, calcFee, calcPaid } from './storage';
 import { UNIVERSITY_NAME, UNIVERSITY_CITY, UNIVERSITY_MOTTO } from '../constants/assets';
+import { getMultiYearComparisonData } from './historicalData';
 
 const triggerDownload = (filename: string, data: any) => {
   const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -64,6 +65,26 @@ export const exportGeneralExcel = (data: AppData) => {
   });
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(financeRows), 'Situation Financière');
 
+  // Sheet 3: Multi-Year Comparison & Archives
+  const comparison = getMultiYearComparisonData(data);
+  const comparisonRows = comparison.allYearsChronological.map((y) => ({
+    'Année Académique': y.year,
+    'Nom de Promotion': y.nomPromotion,
+    Statut: y.status,
+    'Effectif Total': y.totalStudents,
+    'Cycle Licence': y.licenceCount,
+    'Cycle Master': y.masterCount,
+    Doctorat: y.doctoratCount,
+    'Taux Réussite LMD (%)': y.successRate,
+    'Taux Assiduité (%)': y.attendanceRate,
+    'Trésorerie Recouvrée (FCFA)': y.totalFeesCollected,
+    'Taux Recouvrement (%)': y.recoveryRate,
+    'Corps Enseignant': y.totalTeachers,
+    'Lauréats Diplômés': y.diplomesDelivres,
+    'Major de Promotion': `${y.majorPromotion.nom} (${y.majorPromotion.moyenne}/20 - ${y.majorPromotion.filiere})`,
+  }));
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(comparisonRows), 'Comparatif Pluriannuel');
+
   const excelBuffer = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' });
   triggerDownload(`universite-henri-lopes-${data.p.ann}.xlsx`, excelBuffer);
 };
@@ -108,7 +129,61 @@ export const exportAcademicExcel = (data: AppData) => {
     CreatedDate: new Date(),
   };
 
-  // Parcours
+  // 1. Filières
+  const filiereRows = (data.filieres || []).map((f) => ({
+    Code: f.code,
+    Filière: f.nom,
+    Domaine: f.domaine,
+    'Chef de Département': f.chefDept || '—',
+    Description: f.description || '',
+  }));
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(filiereRows), 'Filières');
+
+  // 2. Options / Parcours
+  const optionRows = (data.options || []).map((o) => {
+    const f = (data.filieres || []).find((x) => x.id === o.filiereId || x.code === o.filiereId);
+    return {
+      Code: o.code,
+      Option: o.nom,
+      Filière: f?.nom || o.filiereId,
+      Cycle: o.cycle,
+      Description: o.description || '',
+    };
+  });
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(optionRows), 'Options');
+
+  // 3. Niveaux
+  const niveauRows = (data.niveaux || []).map((n) => ({
+    Niveau: n.code,
+    Intitulé: n.intitule,
+    Cycle: n.cycle,
+    'Crédits Requis (ECTS)': n.creditsRequis,
+    Ordre: n.ordre,
+  }));
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(niveauRows), 'Niveaux');
+
+  // 4. Classes
+  const classeRows = (data.classes || []).map((c) => {
+    const f = (data.filieres || []).find((x) => x.id === c.filiereId || x.code === c.filiereId);
+    const o = (data.options || []).find((x) => x.id === c.optionId || x.code === c.optionId);
+    const count = data.students.filter(
+      (s) => s.classe === c.code || s.classe === c.id || (s.niveau === c.niveau && (s.parcours === c.optionId || s.fil === f?.nom))
+    ).length;
+    return {
+      Code: c.code,
+      Nom: c.nom,
+      Niveau: c.niveau,
+      Filière: f?.nom || c.filiereId,
+      Option: o?.nom || c.optionId || '—',
+      Salle: c.salle || '—',
+      Délégué: c.delegue || '—',
+      Capacité: c.capacite || '—',
+      'Étudiants inscrits': count,
+    };
+  });
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(classeRows), 'Classes');
+
+  // 5. Parcours (Legacy)
   const parcoursRows = data.parcours.map((p) => ({
     Intitulé: p.nom,
     Domaine: p.dom,

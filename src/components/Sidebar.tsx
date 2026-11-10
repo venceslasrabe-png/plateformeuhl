@@ -113,7 +113,7 @@ export const Sidebar: React.FC<Props> = ({
             {(!isCollapsed || isOpenMobile) && (
               <div className="min-w-0 truncate">
                 <h1 className="font-['Bricolage_Grotesque'] font-bold text-sm tracking-tight text-white leading-tight truncate">
-                  Univ. Henri Lopes
+                  <span className="text-amber-300 font-extrabold mr-1">UHL</span> · Henri Lopes
                 </h1>
                 <p className="text-[10px] text-emerald-300/80 font-normal truncate">
                   Pointe-Noire · LMD

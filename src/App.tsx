@@ -59,7 +59,7 @@ const VIEW_METADATA: Record<string, { title: string; subtitle: string }> = {
   },
   aca: {
     title: 'Structure académique LMD',
-    subtitle: 'Parcours, Unités d’Enseignement, Éléments Constitutifs & Emploi du temps',
+    subtitle: 'Filières, Options, Niveaux, Classes, Unités d’Enseignement & Planning',
   },
   pres: {
     title: 'Feuille de présences',

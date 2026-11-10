@@ -32,6 +32,8 @@ export const StudentsView: React.FC<Props> = ({ data, onSaveData, onNotify }) =>
   const [searchQuery, setSearchQuery] = useState('');
   const [filterParcours, setFilterParcours] = useState('');
   const [filterNiveau, setFilterNiveau] = useState('');
+  const [filterFiliere, setFilterFiliere] = useState('');
+  const [filterClasse, setFilterClasse] = useState('');
 
   // Form active tab
   const [formTab, setFormTab] = useState<'civil' | 'scolaire' | 'tuteurs' | 'finance'>('civil');
@@ -53,8 +55,9 @@ export const StudentsView: React.FC<Props> = ({ data, onSaveData, onNotify }) =>
     cyc: 'LN (licence normale)',
     annee: data.p.ann,
     parcours: data.parcours[0]?.id || '',
-    fil: 'Informatique',
+    fil: data.filieres?.[0]?.nom || 'Informatique & Sciences du Numérique',
     niveau: 'L1',
+    classe: data.classes?.[0]?.code || 'L1-INFO-A',
     dnv: 'Terminale',
     ddip: 'Baccalauréat',
     dan: '2025',
@@ -118,6 +121,7 @@ export const StudentsView: React.FC<Props> = ({ data, onSaveData, onNotify }) =>
       parcours: s.parcours,
       fil: s.fil,
       niveau: s.niveau,
+      classe: s.classe || '',
       dnv: s.dnv,
       ddip: s.ddip,
       dan: s.dan,
@@ -239,7 +243,9 @@ export const StudentsView: React.FC<Props> = ({ data, onSaveData, onNotify }) =>
       s.tel.includes(q);
     const matchParcours = !filterParcours || s.parcours === filterParcours;
     const matchNiveau = !filterNiveau || s.niveau === filterNiveau;
-    return matchSearch && matchParcours && matchNiveau;
+    const matchFiliere = !filterFiliere || s.fil === filterFiliere;
+    const matchClasse = !filterClasse || s.classe === filterClasse;
+    return matchSearch && matchParcours && matchNiveau && matchFiliere && matchClasse;
   });
 
   return (
@@ -519,26 +525,53 @@ export const StudentsView: React.FC<Props> = ({ data, onSaveData, onNotify }) =>
                     onChange={(e) => setFormData({ ...formData, niveau: e.target.value })}
                     className="mt-1 w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-bold"
                   >
-                    <option value="L1">L1 (1ère année Licence)</option>
-                    <option value="L2">L2 (2ème année Licence)</option>
-                    <option value="L3">L3 (3ème année Licence)</option>
-                    <option value="M1">M1 (1ère année Master)</option>
-                    <option value="M2">M2 (2ème année Master)</option>
-                    <option value="D1">D1 (Doctorat An 1)</option>
-                    <option value="D2">D2 (Doctorat An 2)</option>
-                    <option value="D3">D3 (Doctorat An 3)</option>
+                    {(data.niveaux && data.niveaux.length > 0 ? data.niveaux : [
+                      { id: '1', code: 'L1', intitule: 'L1 (1ère année Licence)' },
+                      { id: '2', code: 'L2', intitule: 'L2 (2ème année Licence)' },
+                      { id: '3', code: 'L3', intitule: 'L3 (3ème année Licence)' },
+                      { id: '4', code: 'M1', intitule: 'M1 (1ère année Master)' },
+                      { id: '5', code: 'M2', intitule: 'M2 (2ème année Master)' },
+                    ]).map((n) => (
+                      <option key={n.id} value={n.code}>
+                        {n.code} — {n.intitule}
+                      </option>
+                    ))}
                   </select>
                 </label>
 
                 <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">
-                  Filière
-                  <input
-                    type="text"
+                  Filière académique
+                  <select
                     value={formData.fil}
                     onChange={(e) => setFormData({ ...formData, fil: e.target.value })}
                     className="mt-1 w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
-                    placeholder="Informatique, Droit, Économie..."
-                  />
+                  >
+                    {(data.filieres && data.filieres.length > 0 ? data.filieres : [
+                      { id: '1', code: 'INFO', nom: 'Informatique & Sciences du Numérique' },
+                      { id: '2', code: 'DROIT', nom: 'Sciences Juridiques & Politiques' },
+                      { id: '3', code: 'SECOG', nom: 'Sciences Économiques & Gestion' },
+                    ]).map((f) => (
+                      <option key={f.id} value={f.nom}>
+                        {f.nom} ({f.code})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">
+                  Classe assignée
+                  <select
+                    value={formData.classe || ''}
+                    onChange={(e) => setFormData({ ...formData, classe: e.target.value })}
+                    className="mt-1 w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-mono"
+                  >
+                    <option value="">Sélectionner une classe</option>
+                    {(data.classes || []).map((c) => (
+                      <option key={c.id} value={c.code}>
+                        {c.code} — {c.nom} ({c.niveau})
+                      </option>
+                    ))}
+                  </select>
                 </label>
 
                 <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">
@@ -779,13 +812,28 @@ export const StudentsView: React.FC<Props> = ({ data, onSaveData, onNotify }) =>
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Filière filter */}
+          <select
+            value={filterFiliere}
+            onChange={(e) => setFilterFiliere(e.target.value)}
+            className="px-2.5 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+          >
+            <option value="">Toutes les filières</option>
+            {(data.filieres || []).map((f) => (
+              <option key={f.id} value={f.nom}>
+                {f.code} - {f.nom}
+              </option>
+            ))}
+          </select>
+
+          {/* Option/Parcours filter */}
           <select
             value={filterParcours}
             onChange={(e) => setFilterParcours(e.target.value)}
             className="px-2.5 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
           >
-            <option value="">Tous les parcours</option>
+            <option value="">Toutes les options</option>
             {data.parcours.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.nom}
@@ -793,20 +841,38 @@ export const StudentsView: React.FC<Props> = ({ data, onSaveData, onNotify }) =>
             ))}
           </select>
 
+          {/* Niveau filter */}
           <select
             value={filterNiveau}
             onChange={(e) => setFilterNiveau(e.target.value)}
             className="px-2.5 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
           >
             <option value="">Tous niveaux</option>
-            <option value="L1">L1</option>
-            <option value="L2">L2</option>
-            <option value="L3">L3</option>
-            <option value="M1">M1</option>
-            <option value="M2">M2</option>
-            <option value="D1">D1</option>
-            <option value="D2">D2</option>
-            <option value="D3">D3</option>
+            {(data.niveaux && data.niveaux.length > 0 ? data.niveaux : [
+              { id: '1', code: 'L1' },
+              { id: '2', code: 'L2' },
+              { id: '3', code: 'L3' },
+              { id: '4', code: 'M1' },
+              { id: '5', code: 'M2' },
+            ]).map((n) => (
+              <option key={n.id} value={n.code}>
+                {n.code}
+              </option>
+            ))}
+          </select>
+
+          {/* Classe filter */}
+          <select
+            value={filterClasse}
+            onChange={(e) => setFilterClasse(e.target.value)}
+            className="px-2.5 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-mono"
+          >
+            <option value="">Toutes les classes</option>
+            {(data.classes || []).map((c) => (
+              <option key={c.id} value={c.code}>
+                {c.code}
+              </option>
+            ))}
           </select>
         </div>
       </div>
@@ -820,8 +886,8 @@ export const StudentsView: React.FC<Props> = ({ data, onSaveData, onNotify }) =>
                 <th className="py-3 px-3">Photo</th>
                 <th className="py-3 px-3">Matricule</th>
                 <th className="py-3 px-3">Nom(s) & Prénom(s)</th>
-                <th className="py-3 px-3">Option / Parcours</th>
-                <th className="py-3 px-3">Niveau</th>
+                <th className="py-3 px-3">Filière & Option</th>
+                <th className="py-3 px-3">Niveau & Classe</th>
                 <th className="py-3 px-3">Scolarité</th>
                 <th className="py-3 px-3 text-right">Actions</th>
               </tr>
@@ -858,15 +924,22 @@ export const StudentsView: React.FC<Props> = ({ data, onSaveData, onNotify }) =>
                         </span>
                       </td>
                       <td className="py-2.5 px-3">
-                        <span className="truncate block max-w-[170px]" title={p?.nom || ''}>
+                        <span className="truncate block max-w-[170px] font-medium text-slate-900 dark:text-white" title={p?.nom || ''}>
                           {p?.nom || '—'}
                         </span>
-                        <span className="text-[10px] text-slate-400">{s.fil}</span>
+                        <span className="text-[10px] text-slate-400 block">{s.fil}</span>
                       </td>
                       <td className="py-2.5 px-3">
-                        <span className="inline-block px-2 py-0.5 rounded font-bold text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                          {s.niveau}
-                        </span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="inline-block px-2 py-0.5 rounded font-bold text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                            {s.niveau}
+                          </span>
+                          {s.classe && (
+                            <span className="inline-block px-1.5 py-0.5 rounded font-mono font-bold text-[9px] bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                              {s.classe}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="py-2.5 px-3">
                         <span

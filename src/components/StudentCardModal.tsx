@@ -133,7 +133,7 @@ export const StudentCardModal: React.FC<Props> = ({ student, data, onClose }) =>
                     </div>
                     <div className="flex-1 leading-tight">
                       <h4 className="text-[10px] font-extrabold tracking-wide uppercase font-['Bricolage_Grotesque'] leading-tight">
-                        Université Henri Lopes
+                        Université Henri Lopes (UHL)
                       </h4>
                       <p className="text-[7.5px] text-emerald-200">
                         Pointe-Noire · République du Congo
@@ -282,7 +282,7 @@ export const StudentCardModal: React.FC<Props> = ({ student, data, onClose }) =>
                 <div className="bg-[#0f3b2e] text-white p-2.5 pb-2 border-b-2 border-[#e8b923]">
                   <div className="flex items-center justify-between">
                     <span className="text-[9px] font-bold tracking-wide uppercase text-amber-300">
-                      Université Henri Lopes
+                      Université Henri Lopes (UHL)
                     </span>
                     <span className="text-[8px] text-emerald-200">Pointe-Noire</span>
                   </div>
@@ -368,7 +368,7 @@ export const StudentCardModal: React.FC<Props> = ({ student, data, onClose }) =>
                   {/* Official Terms of Use */}
                   <div className="bg-slate-100 rounded-lg p-1.5 text-[6.5px] text-slate-500 leading-tight text-center">
                     <p className="font-semibold text-slate-700 mb-0.5">AVIS RÉGLEMENTAIRE</p>
-                    Cette carte est strictement personnelle et demeure la propriété de l'Université Henri Lopes.
+                    Cette carte est strictement personnelle et demeure la propriété de l'Université Henri Lopes (UHL).
                     En cas de perte, rapporter à la Scolarité : BP 1254 Pointe-Noire.
                   </div>
 

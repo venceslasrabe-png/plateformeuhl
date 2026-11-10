@@ -3,7 +3,7 @@ export type Semester = 'S1' | 'S2' | 'S3' | 'S4' | 'S5' | 'S6';
 
 export interface Student {
   id: string;
-  mat: string; // Matricule HLU-2026-0001
+  mat: string; // Matricule UHL-2026-0001
   nom: string;
   prenom: string;
   naiss: string; // YYYY-MM-DD
@@ -19,9 +19,10 @@ export interface Student {
   // Scolarité
   cyc: string; // LN, LP, Master, Doctorat
   annee: string;
-  parcours: string; // parcours ID
-  fil: string;
+  parcours: string; // parcours ID / Option ID
+  fil: string; // Filière
   niveau: string; // L1, L2, L3, M1, M2, D1, D2, D3
+  classe?: string; // ex. L1-INFO-A
   dnv: string;
   ddip: string;
   dan: string;
@@ -51,6 +52,45 @@ export interface Student {
   cout: number;
   typr: 'Inscription' | 'Réinscription' | 'Normal';
   stat: 'Normal' | 'Boursier' | 'Réduction';
+}
+
+export interface Filiere {
+  id: string;
+  code: string; // ex. "INFO", "DROIT", "SECOG", "COMM"
+  nom: string; // ex. "Informatique & Sciences Numériques"
+  domaine: string; // ex. "Sciences et Technologies"
+  chefDept?: string; // ex. "Prof. Jean-Claude Mavoungou"
+  description?: string;
+}
+
+export interface OptionItem {
+  id: string;
+  code: string; // ex. "IGR", "GLSI", "DAF"
+  nom: string; // ex. "Informatique de Gestion & Réseaux"
+  filiereId: string; // Référence à Filière
+  cycle: Cycle;
+  description?: string;
+}
+
+export interface NiveauItem {
+  id: string;
+  code: string; // "L1", "L2", "L3", "M1", "M2", "D1", "D2", "D3"
+  intitule: string; // ex. "Licence 1ère Année (S1-S2)"
+  cycle: Cycle;
+  ordre: number; // 1, 2, 3...
+  creditsRequis: number; // 60, 120, 180...
+}
+
+export interface ClasseItem {
+  id: string;
+  code: string; // ex. "L1-INFO-A", "L2-INFO", "M1-DAF"
+  nom: string; // ex. "Licence 1 Informatique - Section A"
+  filiereId: string; // Code ou ID de filière
+  optionId?: string; // Code ou ID d'option / parcours
+  niveau: string; // "L1", "L2", "L3", "M1", "M2"
+  salle?: string; // ex. "Amphithéâtre Nelson Mandela"
+  delegue?: string; // Nom de l'étudiant délégué
+  capacite?: number; // Capacité max de la classe
 }
 
 export interface Parcours {
@@ -189,6 +229,10 @@ export interface UserRequestRecord {
 export interface AppData {
   students: Student[];
   parcours: Parcours[];
+  filieres: Filiere[];
+  options: OptionItem[];
+  niveaux: NiveauItem[];
+  classes: ClasseItem[];
   ue: UE[];
   ec: EC[];
   edt: TimetableEntry[];

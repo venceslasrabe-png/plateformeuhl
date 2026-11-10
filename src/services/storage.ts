@@ -1,4 +1,4 @@
-import { AppData, EC, SemesterResult, Student, TimetableEntry, UE } from '../types';
+import { AppData, ClasseItem, EC, Filiere, NiveauItem, OptionItem, SemesterResult, Student, TimetableEntry, UE } from '../types';
 import { DEFAULT_PARAMS } from '../constants/assets';
 
 const STORAGE_KEY = 'hlu-lmd-app-data';
@@ -21,7 +21,7 @@ export const getMention = (moy: number | null): string => {
 export const generateMatricule = (data: AppData): string => {
   const year = data.p.ann.slice(0, 4);
   const count = data.students.length + 1;
-  return `HLU-${year}-${String(count).padStart(4, '0')}`;
+  return `UHL-${year}-${String(count).padStart(4, '0')}`;
 };
 
 export const calcFee = (s: Student, data: AppData): number => {
@@ -210,6 +210,201 @@ export const createInitialSeedData = (): AppData => {
   const e3 = 'e3';
   const e4 = 'e4';
   const e5 = 'e5';
+
+  const initialFilieres: Filiere[] = [
+    {
+      id: 'fil-info',
+      code: 'INFO',
+      nom: 'Informatique & Sciences du Numérique',
+      domaine: 'Sciences et Technologies',
+      chefDept: 'Prof. Jean-Claude Mavoungou',
+      description: 'Ingénierie logicielle, réseaux télécoms, intelligence artificielle et systèmes d’information.',
+    },
+    {
+      id: 'fil-droit',
+      code: 'DROIT',
+      nom: 'Sciences Juridiques & Politiques',
+      domaine: 'Sciences Juridiques et Politiques',
+      chefDept: 'Dr. Arlette Ndinga-Loubaki',
+      description: 'Droit des affaires OHADA, droit privé fondamental, contentieux fiscal et carrières judiciaires.',
+    },
+    {
+      id: 'fil-secog',
+      code: 'SECOG',
+      nom: 'Sciences Économiques & Gestion',
+      domaine: 'Sciences Économiques et de Gestion',
+      chefDept: 'M. Bienvenu Mampouya',
+      description: 'Audit et contrôle de gestion, finance de marché, comptabilité générale et management des organisations.',
+    },
+    {
+      id: 'fil-comm',
+      code: 'COMM',
+      nom: 'Lettres, Langues & Communication',
+      domaine: 'Arts, Lettres et Sciences Humaines',
+      chefDept: 'Dr. Marcellin Mavoungou',
+      description: 'Communication digitale, relations publiques, journalisme multimédia et traduction professionnelle.',
+    },
+  ];
+
+  const initialOptions: OptionItem[] = [
+    {
+      id: p1,
+      code: 'IGR',
+      nom: 'Informatique de Gestion & Réseaux',
+      filiereId: 'fil-info',
+      cycle: 'Licence',
+      description: 'Administration de réseaux informatiques, bases de données relationnelles et ERP.',
+    },
+    {
+      id: 'opt-glsi',
+      code: 'GLSI',
+      nom: 'Génie Logiciel & Systèmes d’Information',
+      filiereId: 'fil-info',
+      cycle: 'Licence',
+      description: 'Architecture logicielle, conception objet, développement web & mobile moderne.',
+    },
+    {
+      id: p2,
+      code: 'DAF',
+      nom: 'Droit des Affaires & Fiscalité',
+      filiereId: 'fil-droit',
+      cycle: 'Master',
+      description: 'Droit des sociétés OHADA, arbitrage commercial, ingénierie fiscale et droit bancaire.',
+    },
+    {
+      id: 'opt-dpf',
+      code: 'DPF',
+      nom: 'Droit Privé Fondamental',
+      filiereId: 'fil-droit',
+      cycle: 'Licence',
+      description: 'Droit civil des obligations, régime général des sûretés et procédure civile.',
+    },
+    {
+      id: p3,
+      code: 'SEG',
+      nom: 'Sciences Économiques & Gestion',
+      filiereId: 'fil-secog',
+      cycle: 'Licence',
+      description: 'Macroéconomie, microéconomie avancée, gestion financière et analyse statistique.',
+    },
+    {
+      id: 'opt-baf',
+      code: 'BAF',
+      nom: 'Banque, Assurance & Finance',
+      filiereId: 'fil-secog',
+      cycle: 'Master',
+      description: 'Marchés financiers, analyse des risques bancaires, microfinance et conformité réglementaire.',
+    },
+  ];
+
+  const initialNiveaux: NiveauItem[] = [
+    {
+      id: 'niv-l1',
+      code: 'L1',
+      intitule: 'Licence 1ère Année (Semestres S1 & S2)',
+      cycle: 'Licence',
+      ordre: 1,
+      creditsRequis: 60,
+    },
+    {
+      id: 'niv-l2',
+      code: 'L2',
+      intitule: 'Licence 2ème Année (Semestres S3 & S4)',
+      cycle: 'Licence',
+      ordre: 2,
+      creditsRequis: 120,
+    },
+    {
+      id: 'niv-l3',
+      code: 'L3',
+      intitule: 'Licence 3ème Année (Semestres S5 & S6)',
+      cycle: 'Licence',
+      ordre: 3,
+      creditsRequis: 180,
+    },
+    {
+      id: 'niv-m1',
+      code: 'M1',
+      intitule: 'Master 1ère Année (Semestres S7 & S8)',
+      cycle: 'Master',
+      ordre: 4,
+      creditsRequis: 240,
+    },
+    {
+      id: 'niv-m2',
+      code: 'M2',
+      intitule: 'Master 2ème Année (Semestres S9 & S10)',
+      cycle: 'Master',
+      ordre: 5,
+      creditsRequis: 300,
+    },
+    {
+      id: 'niv-doc',
+      code: 'Doctorat',
+      intitule: 'Doctorat / Ph.D (Thèse de recherche)',
+      cycle: 'Doctorat',
+      ordre: 6,
+      creditsRequis: 360,
+    },
+  ];
+
+  const initialClasses: ClasseItem[] = [
+    {
+      id: 'cls-l1-info-a',
+      code: 'L1-INFO-A',
+      nom: 'Licence 1 Informatique — Section A',
+      filiereId: 'fil-info',
+      optionId: p1,
+      niveau: 'L1',
+      salle: 'Amphithéâtre Nelson Mandela',
+      delegue: 'Clarisse Grâce Mavoungou',
+      capacite: 60,
+    },
+    {
+      id: 'cls-l2-info',
+      code: 'L2-INFO',
+      nom: 'Licence 2 Informatique de Gestion',
+      filiereId: 'fil-info',
+      optionId: p1,
+      niveau: 'L2',
+      salle: 'Laboratoire Informatique 1',
+      delegue: 'Dieudonné Landry Tchicaya',
+      capacite: 45,
+    },
+    {
+      id: 'cls-l3-glsi',
+      code: 'L3-GLSI',
+      nom: 'Licence 3 Génie Logiciel',
+      filiereId: 'fil-info',
+      optionId: 'opt-glsi',
+      niveau: 'L3',
+      salle: 'Salle TP Informatique 104',
+      delegue: 'Prince Destin Ngoma',
+      capacite: 40,
+    },
+    {
+      id: 'cls-m1-daf',
+      code: 'M1-DAF',
+      nom: 'Master 1 Droit des Affaires & Fiscalité',
+      filiereId: 'fil-droit',
+      optionId: p2,
+      niveau: 'M1',
+      salle: 'Amphithéâtre Droit & Économie',
+      delegue: 'Fabrice Vivien Bouanga',
+      capacite: 50,
+    },
+    {
+      id: 'cls-l1-secog',
+      code: 'L1-SECOG',
+      nom: 'Licence 1 Sciences Éco & Gestion',
+      filiereId: 'fil-secog',
+      optionId: p3,
+      niveau: 'L1',
+      salle: 'Salle B2',
+      delegue: 'Esther Priscille Loemba',
+      capacite: 65,
+    },
+  ];
 
   const initialParcours = [
     {
@@ -518,7 +713,7 @@ export const createInitialSeedData = (): AppData => {
 
   const students: Student[] = studentsList.map((st, idx) => ({
     id: `etu-${idx + 1}`,
-    mat: `HLU-2026-${String(idx + 1).padStart(4, '0')}`,
+    mat: `UHL-2026-${String(idx + 1).padStart(4, '0')}`,
     nom: st.nom,
     prenom: st.prenom,
     naiss: st.naiss,
@@ -535,6 +730,7 @@ export const createInitialSeedData = (): AppData => {
     parcours: st.parcours,
     fil: st.fil,
     niveau: st.niveau,
+    classe: st.niveau === 'L1' ? (st.fil === 'Informatique' ? 'cls-l1-info-a' : 'cls-l1-secog') : (st.niveau === 'L2' ? 'cls-l2-info' : (st.niveau === 'M1' ? 'cls-m1-daf' : 'cls-l1-info-a')),
     dnv: 'Terminale D',
     ddip: 'Baccalauréat Scientifique',
     dan: '2025',
@@ -722,7 +918,7 @@ export const createInitialSeedData = (): AppData => {
       titre: 'Nouvelle inscription à encaisser',
       cible: 'Caisse' as const,
       etu: 'etu-5',
-      msg: 'Loemba Esther Priscille (HLU-2026-0005) · Informatique · L1 : échéance 50 000 FCFA sur un coût de 150 000 FCFA.',
+      msg: 'Loemba Esther Priscille (UHL-2026-0005) · Informatique · L1 : échéance 50 000 FCFA sur un coût de 150 000 FCFA.',
       ts: Date.now() - 86400000 * 1,
     },
   ];
@@ -794,6 +990,10 @@ export const createInitialSeedData = (): AppData => {
   return {
     students,
     parcours: initialParcours,
+    filieres: initialFilieres,
+    options: initialOptions,
+    niveaux: initialNiveaux,
+    classes: initialClasses,
     ue: initialUe,
     ec: initialEc,
     edt: initialEdt,
@@ -817,10 +1017,21 @@ export const loadAppData = (): AppData => {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      // Ensure all arrays exist
+      const initial = createInitialSeedData();
+      // Ensure all arrays exist, newly added academic entities fall back to seed, and matricules use UHL
+      const loadedStudents = (parsed.students && parsed.students.length > 0 ? parsed.students : initial.students).map((s: Student) => ({
+        ...s,
+        mat: s.mat?.startsWith('HLU-') ? s.mat.replace(/^HLU-/, 'UHL-') : s.mat,
+      }));
+
       return {
-        ...createInitialSeedData(),
+        ...initial,
         ...parsed,
+        students: loadedStudents,
+        filieres: parsed.filieres && parsed.filieres.length > 0 ? parsed.filieres : initial.filieres,
+        options: parsed.options && parsed.options.length > 0 ? parsed.options : initial.options,
+        niveaux: parsed.niveaux && parsed.niveaux.length > 0 ? parsed.niveaux : initial.niveaux,
+        classes: parsed.classes && parsed.classes.length > 0 ? parsed.classes : initial.classes,
         p: { ...DEFAULT_PARAMS, ...(parsed.p || {}) },
       };
     }

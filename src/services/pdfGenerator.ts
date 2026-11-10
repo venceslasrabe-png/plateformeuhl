@@ -117,7 +117,7 @@ export const downloadStudentCardPdf = async (student: Student, data: AppData) =>
   doc.setTextColor(15, 59, 46);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(6.8);
-  doc.text('UNIVERSITÉ HENRI LOPES', 13, 6.5);
+  doc.text('UNIVERSITÉ HENRI LOPES (UHL)', 13, 6.5);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(4.2);
   doc.setTextColor(90, 90, 90);
@@ -277,7 +277,7 @@ export const downloadStudentCardPdf = async (student: Student, data: AppData) =>
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(6.8);
-  doc.text('UNIVERSITÉ HENRI LOPES', 12, 5.5);
+  doc.text('UNIVERSITÉ HENRI LOPES (UHL)', 12, 5.5);
   doc.setFontSize(4.2);
   doc.setTextColor(232, 185, 35);
   doc.text('AUTHENTIFICATION & CONTACTS ÉTUDIANT', 12, 9);
@@ -426,7 +426,7 @@ export const downloadRegistrationFormPdf = async (student: Student, data: AppDat
   doc.setTextColor(30, 30, 30);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
-  T('UNIVERSITÉ HENRI LOPES', 34, 16);
+  T('UNIVERSITÉ HENRI LOPES (UHL)', 34, 16);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   T('Pointe-Noire · République du Congo', 34, 21);
@@ -621,7 +621,7 @@ export const downloadTranscriptPdf = async (
   doc.setTextColor(15, 59, 46);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
-  T('UNIVERSITÉ HENRI LOPES', 35, 15);
+  T('UNIVERSITÉ HENRI LOPES (UHL)', 35, 15);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.setTextColor(63, 154, 77);
@@ -879,7 +879,7 @@ export const downloadDeliberationPvPdf = async (
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(13);
   doc.setTextColor(BL[0], BL[1], BL[2]);
-  doc.text('UNIVERSITÉ HENRI LOPES', 38, 16);
+  doc.text('UNIVERSITÉ HENRI LOPES (UHL)', 38, 16);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(70, 70, 70);
@@ -951,7 +951,7 @@ export const downloadPaymentReceiptPdf = async (pay: Payment, data: AppData) => 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(13);
   doc.setTextColor(BL[0], BL[1], BL[2]);
-  doc.text('UNIVERSITÉ HENRI LOPES', 38, 17);
+  doc.text('UNIVERSITÉ HENRI LOPES (UHL)', 38, 17);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(100, 100, 100);

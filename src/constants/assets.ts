@@ -1,6 +1,8 @@
 import { AppParams, RoleType } from '../types';
 
 export const UNIVERSITY_NAME = 'Université Henri Lopes';
+export const UNIVERSITY_ABBREVIATION = 'UHL';
+export const UNIVERSITY_FULL_NAME = 'Université Henri Lopes (UHL)';
 export const UNIVERSITY_CITY = 'Pointe-Noire';
 export const UNIVERSITY_COUNTRY = 'République du Congo';
 export const UNIVERSITY_MOTTO = 'Savoir · Former · Réussir';

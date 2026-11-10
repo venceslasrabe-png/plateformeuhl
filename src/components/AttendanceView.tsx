@@ -37,7 +37,7 @@ export const AttendanceView: React.FC<Props> = ({ data, onSaveData, onNotify }) 
   // Generate QR code for this course session
   useEffect(() => {
     if (selectedEcId) {
-      QRCode.toDataURL(`HLU|${sessionKey}`, {
+      QRCode.toDataURL(`UHL|${sessionKey}`, {
         margin: 1,
         width: 140,
         color: { dark: '#0f4c3a', light: '#ffffff' },
@@ -187,7 +187,7 @@ export const AttendanceView: React.FC<Props> = ({ data, onSaveData, onNotify }) 
                   type="text"
                   value={scanInput}
                   onChange={(e) => setScanInput(e.target.value)}
-                  placeholder="ex. HLU-2026-0001 puis Appuyez sur Entrée"
+                  placeholder="ex. UHL-2026-0001 puis Appuyez sur Entrée"
                   className="w-full pl-9 pr-3 py-2 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-600"
                 />
               </div>
