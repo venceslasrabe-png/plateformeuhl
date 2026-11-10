@@ -8,6 +8,7 @@ import {
   UNIVERSITY_MOTTO,
   UNIVERSITY_NAME,
   UNIVERSITY_CITY,
+  UNIVERSITY_ABBREVIATION,
 } from '../constants/assets';
 import {
   LogIn,
@@ -23,7 +24,10 @@ import {
   User as UserIcon,
   Briefcase,
   Database,
+  School,
 } from 'lucide-react';
+
+const BACKGROUND_BUILDING_IMAGE = '/assets/aistudio/images_5b58d254.jfif';
 
 interface AuthPageProps {
   onContinue: () => void;
@@ -50,6 +54,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onContinue, activeRole }) =>
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [unauthorizedDomain, setUnauthorizedDomain] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCardRequestModal, setShowCardRequestModal] = useState(false);
 
   const handleGoogleLogin = async () => {
     setErrorMsg(null);
@@ -73,7 +78,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onContinue, activeRole }) =>
         const hostname = window.location.hostname;
         setUnauthorizedDomain(hostname);
         setErrorMsg(
-          `Le domaine actuel (${hostname}) n'est pas encore enregistré dans les domaines autorisés de votre projet Firebase (second-jet-401209).`
+          `Le domaine actuel (${hostname}) n'est pas encore enregistré dans les domaines autorisés de votre projet Firebase.`
         );
       } else if (code === 'auth/cancelled-popup-request') {
         setErrorMsg('Une autre fenêtre de connexion Google était déjà ouverte.');
@@ -131,145 +136,289 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onContinue, activeRole }) =>
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-center items-center p-4 sm:p-6 relative overflow-hidden">
-      {/* Background academic patterns */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/2" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none translate-x-1/2 translate-y-1/2" />
+    <div className="min-h-screen w-full flex flex-col lg:grid lg:grid-cols-2 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+      {/* =========================================================================
+          COLONNE DE GAUCHE : VISUEL BÂTIMENT UNIVERSITÉ & GRADIENT INSTITUTIONNEL
+          ========================================================================= */}
+      <div className="relative min-h-[380px] lg:min-h-screen flex flex-col justify-between p-6 sm:p-10 lg:p-14 overflow-hidden select-none">
+        {/* Background Building Photo */}
+        <div
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out scale-105"
+          style={{
+            backgroundImage: `url("${BACKGROUND_BUILDING_IMAGE}")`,
+          }}
+        />
 
-      {/* Main card */}
-      <div className="max-w-md w-full bg-slate-800/90 backdrop-blur-xl border border-slate-700/80 rounded-3xl shadow-2xl overflow-hidden relative z-10">
-        {/* Top University Brand Bar */}
-        <div className="p-6 sm:p-8 bg-gradient-to-b from-slate-800 to-slate-800/50 border-b border-slate-700/60 text-center flex flex-col items-center">
-          <div className="w-20 h-20 rounded-2xl bg-white p-2 shadow-xl border-2 border-amber-400/40 mb-3 flex items-center justify-center">
+        {/* Deep Teal / Emerald / Marine Gradient Overlay matching the reference document */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0a4639]/92 via-[#0f5445]/85 to-[#134969]/90 backdrop-blur-[1.5px]" />
+
+        {/* Subtle grid pattern overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
+
+        {/* Top Left: Logo & University Identity Badge */}
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-13 h-13 rounded-xl bg-white p-1.5 shadow-lg flex items-center justify-center shrink-0 border border-white/20">
             <img
               src={UNIVERSITY_LOGO}
-              alt="Emblème Université Henri Lopes"
+              alt="Logo Université Henri Lopes"
               className="w-full h-full object-contain"
             />
           </div>
-          <h1 className="text-xl sm:text-2xl font-extrabold font-['Bricolage_Grotesque'] tracking-tight text-white">
-            {UNIVERSITY_NAME}
-          </h1>
-          <p className="text-xs text-emerald-400 font-medium mt-0.5">
-            {UNIVERSITY_CITY} · Plateforme LMD
-          </p>
-          <p className="text-[11px] text-amber-300 italic mt-1 font-serif">
-            « {UNIVERSITY_MOTTO} »
-          </p>
+          <div>
+            <h1 className="text-white font-extrabold text-base sm:text-lg leading-tight font-['Bricolage_Grotesque'] tracking-tight">
+              {UNIVERSITY_NAME} <span className="text-amber-300">({UNIVERSITY_ABBREVIATION})</span>
+            </h1>
+            <p className="text-emerald-200 text-xs italic font-serif mt-0.5">
+              « {UNIVERSITY_MOTTO} »
+            </p>
+          </div>
         </div>
 
-        {/* User is already connected view */}
-        {user ? (
-          <div className="p-6 sm:p-8 space-y-6">
-            <div className="bg-emerald-950/40 border border-emerald-500/40 rounded-2xl p-4 flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <p className="text-sm font-bold text-white">
-                  Session Firebase active
-                </p>
-                <p className="text-xs text-emerald-200">
-                  Connecté en tant que <span className="font-semibold text-white">{user.displayName || user.email}</span>
-                </p>
-                <p className="text-[11px] text-slate-400">
-                  UID: <code className="text-slate-300">{user.uid.slice(0, 12)}...</code>
-                </p>
-                {profile && (
-                  <div className="pt-2 flex items-center gap-2">
-                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-500/30 text-indigo-300 border border-indigo-400/30 font-semibold">
-                      {ROLE_LABELS[profile.role] || profile.role}
-                    </span>
-                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30">
-                      {profile.status === 'approved' ? 'Compte validé' : 'En attente de validation'}
-                    </span>
-                  </div>
+        {/* Center/Bottom Left: Large Welcome Statement */}
+        <div className="relative z-10 my-auto py-10 lg:py-0">
+          <div className="max-w-xl">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight font-['Bricolage_Grotesque'] tracking-tight">
+              Bienvenue sur la plateforme académique
+            </h2>
+            <p className="text-emerald-100 text-sm sm:text-base font-normal mt-3 leading-relaxed">
+              Année universitaire 2026-2027
+            </p>
+          </div>
+        </div>
+
+        {/* Bottom Left Footer */}
+        <div className="relative z-10 pt-4 border-t border-white/10 flex flex-wrap items-center justify-between text-xs text-emerald-200/80">
+          <span>© 2026 {UNIVERSITY_NAME} ({UNIVERSITY_ABBREVIATION})</span>
+          <span>{UNIVERSITY_CITY} · République du Congo</span>
+        </div>
+      </div>
+
+      {/* =========================================================================
+          COLONNE DE DROITE : FORMULAIRE DE CONNEXION (PLAN CONFORME AU DOCUMENT)
+          ========================================================================= */}
+      <div className="flex flex-col justify-center items-center p-6 sm:p-12 lg:p-16 bg-white dark:bg-slate-900">
+        <div className="w-full max-w-md space-y-6">
+          {/* Header text exactly like the document: "Connexion", "Accédez à votre espace personnel" */}
+          <div>
+            <h3 className="text-2xl sm:text-3xl font-extrabold font-['Bricolage_Grotesque'] text-slate-900 dark:text-white tracking-tight">
+              {user ? 'Session Active' : mode === 'signin' ? 'Connexion' : 'Création de compte'}
+            </h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              {user
+                ? 'Vous êtes actuellement authentifié sur la plateforme'
+                : mode === 'signin'
+                ? 'Accédez à votre espace personnel'
+                : 'Inscrivez-vous pour accéder à votre espace de travail'}
+            </p>
+          </div>
+
+          {/* User is already connected */}
+          {user ? (
+            <div className="space-y-5">
+              <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                <div className="space-y-1 text-xs">
+                  <p className="font-bold text-slate-900 dark:text-white text-sm">
+                    Connecté avec succès
+                  </p>
+                  <p className="text-slate-600 dark:text-slate-300">
+                    Compte : <span className="font-semibold text-emerald-700 dark:text-emerald-300">{user.displayName || user.email}</span>
+                  </p>
+                  {profile && (
+                    <div className="pt-1 flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-full bg-[#008751]/15 text-[#008751] dark:text-emerald-300 font-bold text-[11px]">
+                        {ROLE_LABELS[profile.role] || profile.role}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 text-[11px] font-semibold">
+                        {profile.status === 'approved' ? 'Validé' : 'En attente'}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={onContinue}
+                  className="w-full py-3.5 px-4 rounded-xl bg-[#008751] hover:bg-[#007043] text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <span>Accéder à la plateforme</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+
+                {user.email === 'smithrabe35@gmail.com' && (
+                  <a
+                    href="https://console.firebase.google.com/project/second-jet-401209/firestore/databases/ai-studio-universithenrilo-62f89908-22f7-4b65-902d-de2afad1c060/data"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full py-2.5 px-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-800 font-semibold text-xs transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Database className="w-4 h-4 text-amber-600" />
+                    <span>Accéder à la console Firestore (Admin) ↗</span>
+                  </a>
                 )}
+
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="w-full py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-700 dark:text-slate-300 hover:text-rose-600 font-semibold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Se déconnecter</span>
+                </button>
               </div>
             </div>
-
-            <div className="space-y-3">
-              <button
-                onClick={onContinue}
-                className="w-full py-3.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 cursor-pointer"
-              >
-                Accéder à la plateforme
-                <ArrowRight className="w-4 h-4" />
-              </button>
-
-              {user.email === 'smithrabe35@gmail.com' && (
-                <a
-                  href="https://console.firebase.google.com/project/second-jet-401209/firestore/databases/ai-studio-universithenrilo-62f89908-22f7-4b65-902d-de2afad1c060/data"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-full py-2.5 px-4 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold text-xs transition-colors flex items-center justify-center gap-2"
+          ) : (
+            <div className="space-y-5">
+              {/* Optional Mode Switcher (Connexion / Inscription) */}
+              <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('signin');
+                    setErrorMsg(null);
+                  }}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    mode === 'signin'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
                 >
-                  <Database className="w-4 h-4 text-amber-400" />
-                  Accéder à la console Firestore (Admin) ↗
-                </a>
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>Connexion</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('signup');
+                    setErrorMsg(null);
+                  }}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    mode === 'signup'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>Créer un compte</span>
+                </button>
+              </div>
+
+              {/* Error Alert */}
+              {errorMsg && (
+                <div className="bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 rounded-xl p-3 text-xs text-rose-800 dark:text-rose-200 flex items-start gap-2 animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                  <p>{errorMsg}</p>
+                </div>
               )}
 
-              <button
-                onClick={logout}
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-700/60 hover:bg-rose-950/60 hover:text-rose-200 text-slate-300 font-semibold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <LogOut className="w-4 h-4" />
-                Se déconnecter
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="p-6 sm:p-8 space-y-6">
-            {/* Tab Switcher */}
-            <div className="flex bg-slate-900/80 p-1 rounded-xl border border-slate-700/80">
-              <button
-                type="button"
-                onClick={() => {
-                  setMode('signin');
-                  setErrorMsg(null);
-                }}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                  mode === 'signin'
-                    ? 'bg-indigo-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <LogIn className="w-3.5 h-3.5" />
-                Connexion
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMode('signup');
-                  setErrorMsg(null);
-                }}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                  mode === 'signup'
-                    ? 'bg-indigo-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <UserPlus className="w-3.5 h-3.5" />
-                Créer un compte
-              </button>
-            </div>
+              {/* Form matching document fields */}
+              <form onSubmit={handleEmailAuth} className="space-y-4">
+                {mode === 'signup' && (
+                  <>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                        Nom complet *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Ex: Dr. Martin Mavoungou"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        className="w-full px-3.5 py-3 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#008751] focus:border-transparent transition-all shadow-xs"
+                      />
+                    </div>
 
-            {/* Error Message Alert */}
-            {errorMsg && (
-              <div className="bg-rose-950/50 border border-rose-500/40 rounded-xl p-3 text-xs text-rose-200 flex items-start gap-2 animate-in fade-in">
-                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                <p>{errorMsg}</p>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                        Vue Métier / Rôle conditionné *
+                      </label>
+                      <select
+                        value={role}
+                        onChange={(e) => setRole(e.target.value as RoleType)}
+                        className="w-full px-3.5 py-3 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#008751] focus:border-transparent transition-all shadow-xs"
+                      >
+                        {(Object.keys(ROLE_LABELS) as RoleType[])
+                          .filter((r) => r !== 'admin')
+                          .map((rKey) => (
+                            <option key={rKey} value={rKey}>
+                              {ROLE_LABELS[rKey]}
+                            </option>
+                          ))}
+                      </select>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                        {ROLE_MISSIONS[role]}
+                      </p>
+                    </div>
+                  </>
+                )}
+
+                {/* Email field as in document */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="nom@universite-henrilopes.cg"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-3.5 py-3 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#008751] focus:border-transparent transition-all shadow-xs"
+                  />
+                </div>
+
+                {/* Password field as in document */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Mot de passe
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="••••••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-3.5 py-3 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#008751] focus:border-transparent transition-all shadow-xs"
+                  />
+                </div>
+
+                {/* Submit button: "Se connecter" exactly as in reference */}
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-3.5 px-4 rounded-xl bg-[#008751] hover:bg-[#007043] text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : mode === 'signin' ? (
+                    <span>Se connecter</span>
+                  ) : (
+                    <span>Créer le compte</span>
+                  )}
+                </button>
+              </form>
+
+              {/* Google Sign In option */}
+              <div className="relative my-3">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-slate-200 dark:border-slate-800" />
+                </div>
+                <div className="relative flex justify-center text-[11px] uppercase tracking-wider text-slate-400">
+                  <span className="bg-white dark:bg-slate-900 px-3">ou</span>
+                </div>
               </div>
-            )}
 
-            {/* 1-Click Google Sign In */}
-            <div>
               <button
                 type="button"
                 disabled={isSubmitting}
                 onClick={handleGoogleLogin}
-                className="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-800 font-bold text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50"
+                className="w-full py-3 px-4 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold text-xs sm:text-sm transition-all shadow-xs flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50"
               >
                 {/* Official Google 'G' icon */}
-                <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -287,45 +436,43 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onContinue, activeRole }) =>
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                   />
                 </svg>
-                <span>Continuer avec Google (Firebase Auth)</span>
+                <span>Continuer avec Google</span>
               </button>
 
-              {/* Instant Admin Login Option */}
+              {/* Direct Admin access */}
               <button
                 type="button"
                 onClick={handleFastAdminLogin}
-                className="w-full mt-2 py-2.5 px-3 rounded-xl bg-indigo-950/70 hover:bg-indigo-900 border border-indigo-700/60 text-indigo-200 hover:text-white text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                className="w-full py-2.5 px-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <ShieldCheck className="w-4 h-4 text-amber-400" />
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-500" />
                 <span>Accès direct Administrateur (smithrabe35@gmail.com)</span>
               </button>
 
-              {/* Unauthorized Domain Assistance */}
+              {/* Unauthorized Domain Assistance if applicable */}
               {unauthorizedDomain && (
-                <div className="mt-3 p-3.5 bg-amber-950/40 border border-amber-500/40 rounded-xl text-left space-y-2 text-xs text-amber-200 animate-in fade-in">
-                  <p className="font-bold flex items-center gap-1.5 text-amber-300">
-                    <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-left space-y-1.5 text-xs text-amber-900 dark:text-amber-200 animate-in fade-in">
+                  <p className="font-bold flex items-center gap-1.5 text-amber-800 dark:text-amber-300">
+                    <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
                     Autoriser ce domaine dans Firebase :
                   </p>
-                  <p className="text-[11px] leading-relaxed text-slate-300">
-                    Pour autoriser le popup Google natif, ajoutez ce domaine dans la Console Firebase sous <em>Authentication &gt; Paramètres &gt; Domaines autorisés</em> :
-                  </p>
-                  <code className="block bg-black/60 px-2 py-1 rounded text-amber-200 font-mono text-[11px] select-all">
+                  <code className="block bg-amber-100 dark:bg-black/40 px-2 py-1 rounded text-amber-900 dark:text-amber-200 font-mono text-[11px] select-all">
                     {unauthorizedDomain}
                   </code>
-                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <div className="flex items-center gap-2 pt-1">
                     <a
                       href="https://console.firebase.google.com/project/second-jet-401209/authentication/settings"
                       target="_blank"
                       rel="noreferrer"
-                      className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 text-[11px] font-semibold transition-colors"
+                      className="text-[11px] font-semibold text-emerald-700 hover:underline"
                     >
                       Ouvrir Firebase Console ↗
                     </a>
+                    <span>•</span>
                     <button
                       type="button"
                       onClick={handleFastAdminLogin}
-                      className="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-semibold transition-colors cursor-pointer"
+                      className="text-[11px] font-semibold text-indigo-600 hover:underline cursor-pointer"
                     >
                       Continuer avec smithrabe35@gmail.com
                     </button>
@@ -333,149 +480,79 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onContinue, activeRole }) =>
                 </div>
               )}
 
-              <div className="relative my-4">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-700" />
-                </div>
-                <div className="relative flex justify-center text-[11px] uppercase tracking-wider text-slate-500">
-                  <span className="bg-slate-800 px-2">ou par e-mail</span>
+              {/* Document footer links: "Besoin d'une carte d'étudiant ? Faire une demande", "Les comptes sont créés par l'administration..." */}
+              <div className="pt-3 text-center space-y-2 border-t border-slate-100 dark:border-slate-800">
+                <p className="text-xs text-slate-600 dark:text-slate-400">
+                  Besoin d'une carte d'étudiant ?{' '}
+                  <button
+                    type="button"
+                    onClick={() => setShowCardRequestModal(true)}
+                    className="text-[#008751] hover:text-[#007043] font-semibold hover:underline cursor-pointer"
+                  >
+                    Faire une demande
+                  </button>
+                </p>
+
+                <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                  Les comptes sont créés par l'administration de l'université.
+                </p>
+
+                <div>
+                  <button
+                    type="button"
+                    onClick={onContinue}
+                    className="text-[11px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 underline transition-colors cursor-pointer"
+                  >
+                    Accéder en mode démonstration locale (sans compte)
+                  </button>
                 </div>
               </div>
             </div>
-
-            {/* Email & Password Form */}
-            <form onSubmit={handleEmailAuth} className="space-y-4">
-              {mode === 'signup' && (
-                <>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">
-                      Nom complet *
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        required
-                        placeholder="Ex: Dr. Martin Mavoungou"
-                        value={displayName}
-                        onChange={(e) => setDisplayName(e.target.value)}
-                        className="w-full px-3 py-2.5 pl-9 text-xs rounded-xl border border-slate-700 bg-slate-900/60 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      />
-                      <UserIcon className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">
-                      Vue Métier d'affectation conditionnée *
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={role}
-                        onChange={(e) => setRole(e.target.value as RoleType)}
-                        className="w-full px-3 py-2.5 pl-9 text-xs rounded-xl border border-slate-700 bg-slate-900/60 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      >
-                        {(Object.keys(ROLE_LABELS) as RoleType[])
-                          .filter((r) => r !== 'admin')
-                          .map((rKey) => (
-                            <option key={rKey} value={rKey} className="bg-slate-800">
-                              {ROLE_LABELS[rKey]}
-                            </option>
-                          ))}
-                      </select>
-                      <Briefcase className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />
-                    </div>
-
-                    {/* Conditioned role explanation card */}
-                    <div className="mt-2 p-2.5 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-[11px] text-indigo-200 space-y-1">
-                      <div className="flex items-center gap-1.5 font-semibold text-indigo-300">
-                        <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                        <span>Conditionnement : {ROLE_LABELS[role]}</span>
-                      </div>
-                      <p className="text-[10px] text-slate-300 leading-tight">
-                        {ROLE_MISSIONS[role]}
-                      </p>
-                      <p className="text-[10px] text-amber-300/90 font-medium">
-                        ℹ️ Compte soumis à la validation du chef de département ou dans la base Firestore.
-                      </p>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Adresse e-mail institutionnelle *
-                </label>
-                <div className="relative">
-                  <input
-                    type="email"
-                    required
-                    placeholder="nom@universite-henrilopes.cg"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3 py-2.5 pl-9 text-xs rounded-xl border border-slate-700 bg-slate-900/60 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                  <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Mot de passe *
-                </label>
-                <div className="relative">
-                  <input
-                    type="password"
-                    required
-                    placeholder="Au moins 6 caractères"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-3 py-2.5 pl-9 text-xs rounded-xl border border-slate-700 bg-slate-900/60 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                  <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm transition-all shadow-md shadow-indigo-600/30 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-              >
-                {isSubmitting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : mode === 'signin' ? (
-                  <>
-                    <LogIn className="w-4 h-4" />
-                    Se connecter à Firebase
-                  </>
-                ) : (
-                  <>
-                    <UserPlus className="w-4 h-4" />
-                    Créer mon compte Firebase
-                  </>
-                )}
-              </button>
-            </form>
-
-            {/* Offline demo option */}
-            <div className="pt-2 text-center border-t border-slate-700/60">
-              <button
-                type="button"
-                onClick={onContinue}
-                className="text-xs text-slate-400 hover:text-white underline decoration-slate-600 hover:decoration-white transition-colors cursor-pointer"
-              >
-                Continuer en mode démonstration locale (sans compte)
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Footer info */}
-        <div className="px-6 py-3 bg-slate-900/90 border-t border-slate-800 text-[11px] text-slate-400 text-center flex items-center justify-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Authentification sécurisée Firebase Firestore · Pointe-Noire</span>
+          )}
         </div>
       </div>
+
+      {/* Modal d'information sur la demande de carte d'étudiant */}
+      {showCardRequestModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
+                <School className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-bold text-base text-slate-900 dark:text-white">
+                  Demande de Carte d'Étudiant
+                </h4>
+                <p className="text-xs text-slate-500">Service de la Scolarité Centrale · UHL</p>
+              </div>
+            </div>
+
+            <div className="text-xs text-slate-600 dark:text-slate-300 space-y-2 leading-relaxed bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+              <p>
+                Pour obtenir votre carte d'étudiant officielle de l'<strong>Université Henri Lopes (UHL)</strong>, veuillez vous rapprocher du guichet de la Scolarité muni des pièces suivantes :
+              </p>
+              <ul className="list-disc pl-5 space-y-1 font-medium">
+                <li>Quittance ou reçu de paiement des frais d'inscription (Caisse UHL)</li>
+                <li>Deux (2) photos d'identité récentes en couleur sur fond blanc</li>
+                <li>Copie de l'attestation du Baccalauréat ou diplôme équivalent</li>
+                <li>Formulaire d'inscription dûment renseigné et signé</li>
+              </ul>
+              <p className="text-[11px] text-emerald-700 dark:text-emerald-400 pt-1 font-semibold">
+                📍 Bureau de la Scolarité : Boulevard Denis Sassou Nguesso, Pointe-Noire.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowCardRequestModal(false)}
+              className="w-full py-2.5 rounded-xl bg-[#008751] hover:bg-[#007043] text-white font-bold text-xs transition-colors cursor-pointer"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
