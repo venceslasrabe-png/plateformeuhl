@@ -96,9 +96,9 @@ const DEFAULT_ACCOUNTS: ActiveAccount[] = [
   {
     id: 'usr-4',
     nom: 'M. Gaston Ngoma',
-    email: 'g.ngoma@universite-henrilopes.cg',
+    email: 'universite@-uhl.cg',
     role: 'surveillant',
-    mission: 'Responsable guérite principale et badgeuse campus',
+    mission: 'Accueil & Contrôle des accès guérite principale et badgeuse campus',
     dateCreated: '2026-09-15',
     syncedWithFirestore: true,
   },
