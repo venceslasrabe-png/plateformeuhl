@@ -29,6 +29,8 @@ export const ROLE_LABELS: Record<RoleType, string> = {
   enseignant: 'Corps enseignant',
   surveillant: 'Accueil & Contrôle des accès',
   president: 'Présidence (Lecture seule)',
+  inscriptions: 'Étudiants & Inscriptions',
+  academique: 'Structure académique LMD',
 };
 
 export const ROLE_MISSIONS: Record<RoleType, string> = {
@@ -39,16 +41,20 @@ export const ROLE_MISSIONS: Record<RoleType, string> = {
   enseignant: 'Faire l’appel en cours, évaluer les étudiants (contrôle continu, examen, rattrapage) et consulter les plannings de cours.',
   surveillant: 'Contrôler les entrées et sorties à la guérite, scanner les badges étudiants et détecter les présences prolongées non autorisées.',
   president: 'Observer en temps réel les indicateurs clés de performance : effectifs, taux de réussite, trésorerie et état des recouvrements (audit).',
+  inscriptions: 'Gestion des inscriptions et dossiers étudiants, cartes d’étudiant PVC avec QR Code, notes et relevés LMD, examens et délibérations semestrielles.',
+  academique: 'Gestion de la structure académique LMD : filières, options, niveaux, classes, unités d’enseignement (UE), éléments constitutifs (EC) et emplois du temps.',
 };
 
 export const MENU_PERMISSIONS: Record<RoleType, string[]> = {
   admin: ['dash', 'mis', 'mi', 'etu', 'aca', 'pres', 'notes', 'exam', 'fin', 'ens', 'com', 'surv', 'prs', 'usr', 'par'],
   direction: ['dash', 'mis', 'mi', 'etu', 'aca', 'pres', 'notes', 'exam', 'ens', 'com', 'prs', 'surv'],
   scolarite: ['dash', 'mis', 'mi', 'etu', 'aca', 'pres', 'notes', 'exam', 'ens', 'com'],
-  caisse: ['dash', 'mis', 'mi', 'fin', 'com'],
+  caisse: ['fin', 'dash', 'mis', 'mi', 'com'],
   enseignant: ['dash', 'mis', 'mi', 'pres', 'notes', 'com'],
   surveillant: ['dash', 'mis', 'mi', 'surv'],
   president: ['dash', 'mis', 'prs', 'surv'],
+  inscriptions: ['etu', 'notes', 'exam', 'dash', 'mis', 'mi', 'com'],
+  academique: ['aca', 'dash', 'mis', 'mi', 'com'],
 };
 
 export const SEMESTERS: Array<'S1' | 'S2' | 'S3' | 'S4' | 'S5' | 'S6'> = ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'];

@@ -56,9 +56,11 @@ const FIREBASE_AUTH_USERS_URL = `https://console.firebase.google.com/project/${F
 
 // Conditioning rules: which roles can be created from each active business view
 const ALLOWED_CREATION_BY_ROLE: Record<RoleType, RoleType[]> = {
-  admin: ['admin', 'direction', 'scolarite', 'caisse', 'enseignant', 'surveillant', 'president'],
-  direction: ['scolarite', 'caisse', 'enseignant', 'surveillant'],
-  scolarite: ['scolarite', 'enseignant'],
+  admin: ['admin', 'direction', 'scolarite', 'inscriptions', 'academique', 'caisse', 'enseignant', 'surveillant', 'president'],
+  direction: ['scolarite', 'inscriptions', 'academique', 'caisse', 'enseignant', 'surveillant'],
+  scolarite: ['scolarite', 'inscriptions', 'academique', 'enseignant'],
+  inscriptions: ['inscriptions'],
+  academique: ['academique'],
   caisse: ['caisse'],
   enseignant: [], // Consultation seule
   surveillant: ['surveillant'],
@@ -87,7 +89,7 @@ const DEFAULT_ACCOUNTS: ActiveAccount[] = [
   {
     id: 'usr-3',
     nom: 'Mme Clarisse Boukaka',
-    email: 'c.boukaka@universite-henrilopes.cg',
+    email: 'caisse@-uhl.cg',
     role: 'caisse',
     mission: 'Gestionnaire comptable et recouvrement des frais de scolarité',
     dateCreated: '2026-09-10',
@@ -114,10 +116,28 @@ const DEFAULT_ACCOUNTS: ActiveAccount[] = [
   {
     id: 'usr-6',
     nom: 'Cabinet du Président',
-    email: 'presidence@universite-henrilopes.cg',
+    email: 'president@-uhl.cg',
     role: 'president',
     mission: 'Audit stratégique, consultation et rapports annuels',
     dateCreated: '2026-08-20',
+    syncedWithFirestore: true,
+  },
+  {
+    id: 'usr-7',
+    nom: 'Service des Inscriptions & Scolarité',
+    email: 'inscriptions@-uhl.cg',
+    role: 'inscriptions',
+    mission: 'Inscriptions, cartes PVC, notes et relevés LMD, examens et délibérations',
+    dateCreated: '2026-09-22',
+    syncedWithFirestore: true,
+  },
+  {
+    id: 'usr-8',
+    nom: 'Direction des Affaires Académiques',
+    email: 'academique@-uhl.cg',
+    role: 'academique',
+    mission: 'Gestion des filières, options, niveaux, classes, maquettes LMD et plannings',
+    dateCreated: '2026-09-22',
     syncedWithFirestore: true,
   },
 ];

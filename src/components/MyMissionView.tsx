@@ -11,6 +11,8 @@ interface MyMissionViewProps {
 }
 
 const ALL_ROLES_ORDER: RoleType[] = [
+  'inscriptions',
+  'academique',
   'surveillant',
   'enseignant',
   'caisse',

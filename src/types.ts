@@ -210,7 +210,9 @@ export type RoleType =
   | 'enseignant'
   | 'surveillant'
   | 'direction'
-  | 'president';
+  | 'president'
+  | 'inscriptions'
+  | 'academique';
 
 export interface UserRoleRecord {
   role: RoleType;

@@ -240,7 +240,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onContinue, activeRole }) =>
                     autoCorrect="off"
                     spellCheck={false}
                     required
-                    placeholder="universite@-uhl.cg"
+                    placeholder="nom@universite-henrilopes.cg"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full px-3.5 py-3 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#008751] focus:border-transparent transition-all shadow-xs"
@@ -289,41 +289,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onContinue, activeRole }) =>
                   )}
                 </button>
               </form>
-
-              {/* Accès Prédéfini : Rôle Surveillant (universite@-uhl.cg) */}
-              <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-left space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-xs font-bold text-emerald-900 dark:text-emerald-200">
-                      Identifiants Rôle Surveillant
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEmail('universite@-uhl.cg');
-                      setPassword('uhl2026');
-                    }}
-                    className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 hover:text-emerald-800 dark:hover:text-emerald-100 bg-white dark:bg-slate-800 px-2 py-0.5 rounded-md border border-emerald-300 dark:border-emerald-700 hover:shadow-xs transition-all cursor-pointer"
-                  >
-                    Remplir le formulaire
-                  </button>
-                </div>
-                <div className="text-[11px] text-slate-700 dark:text-slate-300 font-mono bg-white/80 dark:bg-slate-900/80 p-2 rounded-lg border border-emerald-100 dark:border-emerald-900/60 space-y-0.5">
-                  <div>
-                    <span className="text-slate-500 dark:text-slate-400 font-sans">Email : </span>
-                    <strong className="text-emerald-800 dark:text-emerald-300 select-all">universite@-uhl.cg</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 dark:text-slate-400 font-sans">Mot de passe : </span>
-                    <strong className="text-emerald-800 dark:text-emerald-300 select-all">uhl2026</strong>
-                  </div>
-                </div>
-                <p className="text-[10px] text-emerald-700/80 dark:text-emerald-400/80 italic">
-                  Attribue l'accès guérite, pointage QR Code, fiches de présence et alertes de campus.
-                </p>
-              </div>
 
               {/* Direct Admin access */}
               <button
